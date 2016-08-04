@@ -81,9 +81,9 @@ def get_pokemon(username, password, auth='google'):
         for attr in attributes:
             pokemon_attributes[attr] = getattr(pokemon, attr)
         pokemon_attributes['pokemon_name'] = pokedex[pokemon_attributes['pokemon_id']]
-        pokemon_attributes['VI'] = ((getattr(pokemon, 'individual_attack') +
-                                     getattr(pokemon, 'individual_defense') +
-                                     getattr(pokemon, 'individual_stamina')) * (100/45))
+        pokemon_attributes['VI'] = round((getattr(pokemon, 'individual_attack') +
+                                         getattr(pokemon, 'individual_defense') +
+                                         getattr(pokemon, 'individual_stamina')) * (100/45.0), 0)
         pokemons.append(pokemon_attributes)
 
     return sorted(pokemons, key=lambda k: k['VI'], reverse=True)
