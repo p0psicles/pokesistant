@@ -9,7 +9,7 @@ angular.module('myApp.login', ['ngRoute'])
         });
     }])
 
-    .controller('LoginCtrl', ['$scope', '$http', function($scope,$http) {
+    .controller('LoginCtrl', ['$scope', '$http', 'PokemonService', '$location', function($scope,$http,PokemonService, $location) {
         $scope.master = {};
 
         $scope.update = function (user) {
@@ -27,7 +27,9 @@ angular.module('myApp.login', ['ngRoute'])
             }
             if(request) {
                 $http.get(request).then(function(response){
-                    console.log(response);
+                    PokemonService.setPokemons(response.data);
+                    console.log(PokemonService.getPokemons());
+                    $location.path('/pokemonList');
                 });
             }
         };

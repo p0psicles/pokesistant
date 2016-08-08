@@ -4,10 +4,11 @@
 angular.module('myApp', [
     // 'ui.bootstrap',
     'ngRoute',
+    'myApp.services',
     'myApp.login',
     'myApp.pokemonList',
     'myApp.version'
 ]).config(['$locationProvider', '$routeProvider', function ($locationProvider, $routeProvider) {
     $locationProvider.hashPrefix('!');
-    $routeProvider.otherwise({redirectTo: 'static/partials/login.html'});
+    $routeProvider.otherwise({redirectTo: '/login'});
 }]);
