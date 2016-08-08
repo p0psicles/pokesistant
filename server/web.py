@@ -11,16 +11,16 @@ else:
 import sqlite3, os
 
 sys.path.insert(1, os.path.abspath(os.path.join(os.path.dirname(__file__), 'lib')))
+sys.path.append('libs')
 
 from lib.pokemongo.api import PokeAuthSession
 from lib.pokemongo.location import Location
 from lib.pokemongo.pokedex import pokedex
 
-sys.path.append('libs')
-
-from contextlib import closing
-from flask import Flask, session, g, redirect, url_for, \
+from flask import Flask, session, redirect, url_for, \
      abort, render_template, flash, jsonify, request
+from contextlib import closing
+
 #from main import *
 from passlib.hash import md5_crypt
 from operator import itemgetter
@@ -73,6 +73,7 @@ def get_pokemon(username, password, auth='google'):
     )
 
     pogo_session = poko_session.authenticate()
+
     party = pogo_session.checkInventory().party
     pokemons = []
     attributes = ['id', 'cp', 'stamina', 'stamina_max', 'move_1', 'move_2', 'individual_attack',
@@ -83,19 +84,19 @@ def get_pokemon(username, password, auth='google'):
         for attr in attributes:
             pokemon_attributes[attr] = getattr(pokemon, attr)
         pokemon_attributes['pokemon_name'] = pokedex[pokemon_attributes['pokemon_id']]
-        pokemon_attributes['VI'] = round((getattr(pokemon, 'individual_attack') +
+        pokemon_attributes['IV'] = round((getattr(pokemon, 'individual_attack') +
                                          getattr(pokemon, 'individual_defense') +
                                          getattr(pokemon, 'individual_stamina')) * (100/45.0), 0)
         pokemons.append(pokemon_attributes)
 
-    return sorted(pokemons, key=lambda k: k['VI'], reverse=True)
+    return (pogo_session, sorted(pokemons, key=lambda k: k['IV'], reverse=True))
 
 
-@app.route('/getpokemon', methods=['GET'])
+@app.route('/getpokemon', methods=['POST'])
 def getpokemon():
-    auth = request.args.get('auth') or 'google'
-    username = request.args.get('username')
-    password = request.args.get('password')
+    auth = request.json.get('auth') or 'google'
+    username = request.json.get('username')
+    password = request.json.get('password')
 
     if not username or not password:
         return jsonify({'error': 'need username and password'})
@@ -105,7 +106,21 @@ def getpokemon():
         logging.error('Invalid auth service {}'.format(auth))
         sys.exit(-1)
 
-    return jsonify(get_pokemon(username, password, auth))
+    session['username'] = username
+    session['password'] = password
+    session['auth'] = auth
+
+    pogo_session, pokemons = get_pokemon(username, password, auth)
+    #session['pogo_session'] = pogo_session
+
+    return jsonify(pokemons)
+
+
+@app.route('/getSession', methods=['GET'])
+def get_session():
+    return jsonify({'username': session.get('username', ''),
+                    'password': session.get('password', ''),
+                    'auth': session.get('auth', '')})
 
 '''
 Basic Web functions Login/Logoff
@@ -116,13 +131,11 @@ Basic Web functions Login/Logoff
 def login():
     error = None
     if request.method == 'POST':
-        user = request.form.get('username')
+        username = request.form.get('username')
         password = request.form.get('password')
-        if user and password:
-            if user == 'admin' and password == app.config['PASSWORD']:
+        if username and password:
+            if username == 'admin' and password == app.config['PASSWORD']:
                 session['logged_in'] = True
-                session['dbuser'] = user
-
                 return redirect(url_for('index'))
             else:
                 error = 'Invalid password'
