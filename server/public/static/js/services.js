@@ -1,7 +1,7 @@
 angular.module('myApp.services', [
 
 ]).service('PokemonService', function () {
-    var _pokemonList = {};
+    var _pokemonList = [];
 
     return {
         getPokemons: function () {
