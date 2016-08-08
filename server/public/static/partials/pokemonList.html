@@ -6,7 +6,8 @@
     <option value="-individual_attack">attack</option>
     <option value="-individual_stamina">stamina</option>
 </select>
-<div class="pokemonTile" ng-repeat="pokemon in pokemonList | orderBy: sortBy">
+<input type="search" ng-model="q" placeholder="filter pokemon..." aria-label="filter on name" />
+<div class="pokemonTile" ng-repeat="pokemon in pokemonList | orderBy: sortBy | filter: q">
     <img src="http://assets.pokemon.com/assets/cms2/img/pokedex/detail/{{pokemon.image_nr}}.png" />
     Pokemon: {{pokemon.pokemon_name}} | IV: {{pokemon.IV}} | CP: {{pokemon.cp}} <br/>
     Attack: {{pokemon.individual_attack}} | Defense: {{pokemon.individual_defense}} | Stamina: {{pokemon.individual_stamina}}
