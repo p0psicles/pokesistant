@@ -94,7 +94,7 @@ def get_pokemon(username, password, auth='google'):
 
 @app.route('/getpokemon', methods=['POST'])
 def getpokemon():
-    auth = request.json.get('auth') or 'google'
+    auth = request.json.get('auth', 'google')
     username = request.json.get('username')
     password = request.json.get('password')
 
