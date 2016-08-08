@@ -1,5 +1,6 @@
 import os
 import time
+from urlparse import urljoin
 time.sleep(3)
 if os.name in ('posix',):
     import sys
@@ -30,8 +31,9 @@ print sys.getdefaultencoding()
 
 # create our little application :)
 app = Flask(__name__,
-            template_folder='public/templates',
-            static_folder='public/static')
+            template_folder='public',
+            static_folder='public',
+            static_url_path='')
 
 # Load default config and override config from an environment variable
 app.config.update(dict(
@@ -135,9 +137,10 @@ def logout():
     session.pop('logged_in', None)
     flash('You were logged out')
 
+
 @app.route('/', methods=['GET', 'POST'])
 def openApp():
-    return render_template('index.html')
+    return render_template('templates/index.html')
 
 if __name__ == '__main__':
     # Process arguments
