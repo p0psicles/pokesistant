@@ -87,6 +87,7 @@ def get_pokemon(username, password, auth='google'):
         pokemon_attributes['IV'] = round((getattr(pokemon, 'individual_attack') +
                                          getattr(pokemon, 'individual_defense') +
                                          getattr(pokemon, 'individual_stamina')) * (100/45.0), 0)
+        pokemon_attributes['image_nr'] = str(pokemon_attributes['pokemon_id']).zfill(3)
         pokemons.append(pokemon_attributes)
 
     return (pogo_session, sorted(pokemons, key=lambda k: k['IV'], reverse=True))
