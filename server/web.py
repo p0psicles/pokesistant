@@ -135,6 +135,9 @@ def logout():
     session.pop('logged_in', None)
     flash('You were logged out')
 
+@app.route('/', methods=['GET', 'POST'])
+def openApp():
+    return render_template('index.html')
 
 if __name__ == '__main__':
     # Process arguments

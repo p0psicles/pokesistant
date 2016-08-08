@@ -1,0 +1,24 @@
+<select class="form-control" ng-model="sortBy">
+    <option value="">IV score</option>
+    <option value="pokemon_name">Name</option>
+    <option value="-individual_defense">defence</option>
+    <option value="-individual_attack">attack</option>
+    <option value="-individual_stamina">stamina</option>
+</select>
+<div class="pokemonTile" ng-repeat="pokemon in pokemonList | orderBy: sortBy">
+    Pokemon: {{pokemon.pokemon_name}} | IV: {{pokemon.VI}} | CP: {{pokemon.cp}} <br/>
+    Attack: {{pokemon.individual_attack}} | Defense: {{pokemon.individual_defense}} | Stamina: {{pokemon.individual_stamina}}
+    <br />
+    <div class="progress-bar" role="progressbar" aria-valuenow={{pokemon.individual_attack}}
+         aria-valuemin="0" aria-valuemax="15" style="width:70%">
+        Attack: {{pokemon.individual_attack}}
+    </div>
+    <div class="progress-bar" role="progressbar" aria-valuenow={{pokemon.individual_defense}}
+         aria-valuemin="0" aria-valuemax="15" style="width:70%">
+        Defense: {{pokemon.individual_defense}}
+    </div>
+    <div class="progress-bar" role="progressbar" aria-valuenow={{pokemon.individual_stamina}}
+         aria-valuemin="0" aria-valuemax="15" style="width:70%">
+        Attack: {{pokemon.individual_stamina}}
+    </div>
+</div>

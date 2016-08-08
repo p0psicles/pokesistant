@@ -1,6 +1,8 @@
 #  Compiled source   #
 ######################
 *.py[cod]
+node_modules/
+bower_components/
 
 #  IDE specific      #
 ######################
@@ -31,3 +33,6 @@ Thumbs.db
 .directory
 *~
 *.torrent
+tmp
+logs/*
+!.gitkeep
