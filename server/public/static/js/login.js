@@ -11,6 +11,7 @@ angular.module('myApp.login', ['ngRoute'])
 
     .controller('LoginCtrl', ['$scope', '$http', 'PokemonService', '$location', function($scope,$http,PokemonService, $location) {
         $scope.master = {};
+        $scope.loading = false;
 
         $scope.update = function (user) {
             // $scope.master = angular.copy(user);
@@ -28,7 +29,9 @@ angular.module('myApp.login', ['ngRoute'])
                 throw new Error('No username or email adres was defined');
             }
             if(request) {
+                $scope.loading = true;
                 $http.post(request, data).then(function(response){
+                    $scope.loading = false;
                     PokemonService.setPokemons(response.data);
                     console.log(PokemonService.getPokemons());
                     $location.path('/pokemonList');

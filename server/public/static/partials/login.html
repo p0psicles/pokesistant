@@ -10,13 +10,15 @@
         <form name="loginForm" ng-switch-when="PTC">
             Name: <input type="text" ng-model="user.name"/><br/>
             Password: <input type="password" ng-model="user.password"/>
-            <input type="submit" ng-click="update(user)" value="Login"/>
+            <input ng-disabled="loading" type="submit" ng-click="update(user)" value="Login"/>
+            <p ng-show="loading">LOADING..</p>
         </form>
 
         <form name="loginForm" ng-switch-when="Google">
             E-mail: <input type="email" ng-model="user.email"/><br/>
             Password: <input type="password" ng-model="user.password"/>
-            <input type="submit" ng-click="update(user)" value="Login"/>
+            <input ng-disabled="loading" type="submit" ng-click="update(user)" value="Login"/>
+            <p ng-show="loading">LOADING..</p>
         </form>
     </div>
     <br />
