@@ -99,7 +99,8 @@ def getpokemon():
         pokemons.append(pokemon_attributes)
 
     if pokemons:
-        return jsonify(sorted(pokemons, key=lambda k: k['IV'], reverse=True))
+        #logging.info(str(pokemons))
+        return jsonify(pokemons=sorted(pokemons, key=lambda k: k['IV'], reverse=True))
     return []
 
 

@@ -14,7 +14,7 @@ angular.module('myApp.login', ['ngRoute'])
         
         $scope.getPokemonList = function() {
             $http.get('/getPokemon').then(function(response){
-                PokemonService.setPokemons(response.data);
+                PokemonService.setPokemons(response.data.pokemons);
                 console.log(PokemonService.getPokemons());
                 $location.path('/pokemonList');
             });
