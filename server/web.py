@@ -1,13 +1,12 @@
+#!/usr/bin/env python
+
+from __future__ import unicode_literals
+
 import os
 import time
 from urlparse import urljoin
 time.sleep(3)
-if os.name in ('posix',):
-    import sys
-    sys.setdefaultencoding("utf-8")
-    import site
-else:
-    import sys
+import sys
 import sqlite3, os
 
 sys.path.insert(1, os.path.abspath(os.path.join(os.path.dirname(__file__), 'lib')))
@@ -21,14 +20,9 @@ from flask import Flask, session, redirect, url_for, \
      abort, render_template, flash, jsonify, request
 
 from contextlib import closing
-
-#from main import *
 from passlib.hash import md5_crypt
 from operator import itemgetter
 import logging
-
-# Testing UTF-8
-print sys.getdefaultencoding()
 
 # create our little application :)
 app = Flask(__name__,
@@ -104,7 +98,9 @@ def getpokemon():
         pokemon_attributes['image_nr'] = str(pokemon_attributes['pokemon_id']).zfill(3)
         pokemons.append(pokemon_attributes)
 
-    return jsonify(sorted(pokemons, key=lambda k: k['IV'], reverse=True))
+    if pokemons:
+        return jsonify(sorted(pokemons, key=lambda k: k['IV'], reverse=True))
+    return []
 
 
 @app.route('/getPogoSession', methods=['POST'])
