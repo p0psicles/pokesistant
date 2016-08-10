@@ -1,15 +1,19 @@
-angular.module('myApp.services', [
+define([
+    'angular'
+], function (angular) {
+    return angular.module('myApp.services', [
 
-]).service('PokemonService', function () {
-    var _pokemonList = [];
+    ]).service('PokemonService', function () {
+        var _pokemonList = [];
 
-    return {
-        getPokemons: function () {
-            return _pokemonList;
-        },
+        return {
+            getPokemons: function () {
+                return _pokemonList;
+            },
 
-        setPokemons: function (pokemonList) {
-            _pokemonList = pokemonList;
+            setPokemons: function (pokemonList) {
+                _pokemonList = pokemonList;
+            }
         }
-    }
+    });
 });

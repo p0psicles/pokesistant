@@ -1,0 +1,49 @@
+{
+  "name": "requirejs-domready",
+  "version": "2.0.3",
+  "description": "An AMD loader plugin for detecting DOM ready. An AMD loader plugin for detecting DOM ready.",
+  "main": "domReady.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/requirejs/domReady.git"
+  },
+  "keywords": [
+    "requirejs"
+  ],
+  "author": {
+    "name": "drmartin"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/requirejs/domReady/issues"
+  },
+  "homepage": "https://github.com/requirejs/domReady#readme",
+  "_id": "requirejs-domready@2.0.3",
+  "_shasum": "049db19658cfac07485952d3521305ab836dac52",
+  "_from": "requirejs-domready@*",
+  "_npmVersion": "3.8.0",
+  "_nodeVersion": "0.10.35",
+  "_npmUser": {
+    "name": "drmartin",
+    "email": "drmartinkf@gmail.com"
+  },
+  "dist": {
+    "shasum": "049db19658cfac07485952d3521305ab836dac52",
+    "tarball": "https://registry.npmjs.org/requirejs-domready/-/requirejs-domready-2.0.3.tgz"
+  },
+  "maintainers": [
+    {
+      "name": "drmartin",
+      "email": "drmartinkf@gmail.com"
+    }
+  ],
+  "_npmOperationalInternal": {
+    "host": "packages-13-west.internal.npmjs.com",
+    "tmp": "tmp/requirejs-domready-2.0.3.tgz_1457313401803_0.13605151511728764"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/requirejs-domready/-/requirejs-domready-2.0.3.tgz"
+}
