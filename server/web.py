@@ -19,6 +19,7 @@ from lib.pokemongo.pokedex import pokedex
 
 from flask import Flask, session, redirect, url_for, \
      abort, render_template, flash, jsonify, request
+
 from contextlib import closing
 
 #from main import *
@@ -41,7 +42,7 @@ app.config.update(dict(
     SECRET_KEY='development key',
     USERNAME='admin',
     PASSWORD='pikapika',
-    slots={},
+    STORE={},
 ))
 app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 
@@ -51,7 +52,6 @@ STARTEDTHREAD = ""
 SECRET_KEY = 'development key'
 USERNAME = 'admin'
 PASSWORD = 'default'
-
 
 def setupLogger():
     logger = logging.getLogger()
@@ -63,16 +63,30 @@ def setupLogger():
     logger.addHandler(ch)
 
 
-def get_pokemon(username, password, auth='google'):
-
+def get_pogo_auth(username=None, password=None, auth='google'):
     # Create PokoAuthObject
-    poko_session = PokeAuthSession(
-        username,
-        password,
-        auth,
-    )
 
-    pogo_session = poko_session.authenticate()
+    if (not username or not password) and not app.config['STORE'].get(session.get('username')):
+        return None
+
+    if username and not app.config['STORE'].get(username):
+        pogo_session = PokeAuthSession(
+            username,
+            password,
+            auth,
+        )
+        app.config['STORE'][username] = pogo_session
+    else:
+        pogo_session = app.config['STORE'][session.get('username')]
+
+    return pogo_session.authenticate()
+
+
+@app.route('/getPokemon', methods=['GET'])
+def getpokemon():
+    pogo_session = get_pogo_auth()
+    if not pogo_session:
+        return redirect(url_for('openApp'))
 
     party = pogo_session.checkInventory().party
     pokemons = []
@@ -90,31 +104,35 @@ def get_pokemon(username, password, auth='google'):
         pokemon_attributes['image_nr'] = str(pokemon_attributes['pokemon_id']).zfill(3)
         pokemons.append(pokemon_attributes)
 
-    return (pogo_session, sorted(pokemons, key=lambda k: k['IV'], reverse=True))
+    return jsonify(sorted(pokemons, key=lambda k: k['IV'], reverse=True))
 
 
-@app.route('/getpokemon', methods=['POST'])
-def getpokemon():
-    auth = request.json.get('auth', 'google')
-    username = request.json.get('username')
-    password = request.json.get('password')
+@app.route('/getPogoSession', methods=['POST'])
+def get_pogo_session():
+    """This route was intended for doing the login, and then store the pogo_session object
+    in a session. But unfortunatly because the object is not serializable this is not possible."""
+
+    auth = request.json.get('auth', 'google').encode('utf-8')
+    username = request.json.get('username').encode('utf-8')
+    password = request.json.get('password').encode('utf-8')
 
     if not username or not password:
         return jsonify({'error': 'need username and password'})
 
     # Check service
     if auth not in ['ptc', 'google']:
-        logging.error('Invalid auth service {}'.format(auth))
+        logging.error('Invalid auth service {0}'.format(auth))
         sys.exit(-1)
 
     session['username'] = username
     session['password'] = password
     session['auth'] = auth
 
-    pogo_session, pokemons = get_pokemon(username, password, auth)
-    #session['pogo_session'] = pogo_session
-
-    return jsonify(pokemons)
+    pogo_session = get_pogo_auth(username, password, auth)
+    if pogo_session:
+        session['access_token'] = pogo_session.accessToken
+        return jsonify({'authenticated': bool(pogo_session), 'accessToken': pogo_session.accessToken})
+    return redirect(url_for('openApp'))
 
 
 @app.route('/getSession', methods=['GET'])

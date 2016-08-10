@@ -3,6 +3,7 @@ import re
 import json
 import random
 import logging
+import time
 
 from session import PogoSession
 from location import Location
@@ -64,6 +65,7 @@ class PokeAuthSession(object):
             logging.info(location)
 
         if self.access_token and location:
+            time.sleep(2)
             return PogoSession(
                 self.session,
                 self.provider,
