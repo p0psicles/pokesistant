@@ -69,7 +69,7 @@ def get_pogo_auth(username=None, password=None, auth='google'):
     if (not username or not password) and not app.config['STORE'].get(session.get('username')):
         return None
 
-    if username and not app.config['STORE'].get(username):
+    if username and password:
         pogo_session = PokeAuthSession(
             username,
             password,
