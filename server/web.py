@@ -14,7 +14,7 @@ sys.path.append('libs')
 
 from lib.pokemongo.api import PokeAuthSession
 from lib.pokemongo.location import Location
-from lib.pokemongo.pokedex import pokedex
+from lib.pokemongo.pokedex import pokedex, move_list
 
 from flask import Flask, session, redirect, url_for, \
      abort, render_template, flash, jsonify, request
@@ -86,7 +86,8 @@ def getpokemon():
     pokemons = []
     attributes = ['id', 'cp', 'stamina', 'stamina_max', 'move_1', 'move_2', 'individual_attack',
                   'individual_defense', 'individual_stamina', 'nickname', 'pokemon_id', 'num_upgrades',
-                  'is_egg', 'battles_attacked', 'battles_defended', 'additional_cp_multiplier']
+                  'is_egg', 'battles_attacked', 'battles_defended', 'additional_cp_multiplier',
+                  'creation_time_ms', 'cp_multiplier', 'weight_kg']
     for pokemon in party:
         pokemon_attributes = {}
         for attr in attributes:
@@ -96,6 +97,9 @@ def getpokemon():
                                          getattr(pokemon, 'individual_defense') +
                                          getattr(pokemon, 'individual_stamina')) * (100/45.0), 0)
         pokemon_attributes['image_nr'] = str(pokemon_attributes['pokemon_id']).zfill(3)
+        pokemon_attributes['move_1_desc'] = move_list[pokemon_attributes['move_1']]
+        pokemon_attributes['move_2_desc'] = move_list[pokemon_attributes['move_2']]
+
         pokemons.append(pokemon_attributes)
 
     if pokemons:
