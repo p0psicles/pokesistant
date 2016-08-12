@@ -28,7 +28,7 @@ define([
                 if(user.name && user.password) {
                     // PTC
                     data = {'username': user.name,'password' : user.password, 'auth': 'ptc'};
-                    var requestPogoSession = 'http://localhost:8080/getPogoSession';
+                    var requestPogoSession = '/getPogoSession';
                 } else if(user.email && user.password) {
                     // Google
                     data = {'username': user.email, 'password' : user.password};
