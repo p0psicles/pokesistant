@@ -1,251 +1,43 @@
-# Load Generated Protobuf
-from POGOProtos.Networking.Requests import Request_pb2
-from POGOProtos.Networking.Requests import RequestType_pb2
-from POGOProtos.Networking.Envelopes import ResponseEnvelope_pb2
-from POGOProtos.Networking.Envelopes import RequestEnvelope_pb2
-from POGOProtos.Networking.Requests.Messages import EncounterMessage_pb2
-from POGOProtos.Networking.Requests.Messages import FortSearchMessage_pb2
-from POGOProtos.Networking.Requests.Messages import FortDetailsMessage_pb2
-from POGOProtos.Networking.Requests.Messages import CatchPokemonMessage_pb2
-from POGOProtos.Networking.Requests.Messages import GetInventoryMessage_pb2
-from POGOProtos.Networking.Requests.Messages import GetMapObjectsMessage_pb2
-from POGOProtos.Networking.Requests.Messages import EvolvePokemonMessage_pb2
-from POGOProtos.Networking.Requests.Messages import ReleasePokemonMessage_pb2
-from POGOProtos.Networking.Requests.Messages import UseItemCaptureMessage_pb2
-from POGOProtos.Networking.Requests.Messages import DownloadSettingsMessage_pb2
-from POGOProtos.Networking.Requests.Messages import UseItemEggIncubatorMessage_pb2
-from POGOProtos.Networking.Requests.Messages import RecycleInventoryItemMessage_pb2
-from POGOProtos.Networking.Requests.Messages import NicknamePokemonMessage_pb2
-from POGOProtos.Networking.Requests.Messages import UseItemPotionMessage_pb2
-from POGOProtos.Networking.Requests.Messages import UseItemReviveMessage_pb2
-from POGOProtos.Networking.Requests.Messages import SetPlayerTeamMessage_pb2
-from POGOProtos.Networking.Requests.Messages import SetFavoritePokemonMessage_pb2
+# Load protobufs
+from POGOProtos.Networking.Requests import(
+    Request_pb2 as Request,
+    RequestType_pb2 as RequestType
+)
+from POGOProtos.Networking.Requests.Messages import(
+    EncounterMessage_pb2 as EncounterMessage,
+    FortSearchMessage_pb2 as FortSearchMessage,
+    FortDetailsMessage_pb2 as FortDetailsMessage,
+    CatchPokemonMessage_pb2 as CatchPokemonMessage,
+    GetMapObjectsMessage_pb2 as GetMapObjectsMessage,
+    EvolvePokemonMessage_pb2 as EvolvePokemonMessage,
+    ReleasePokemonMessage_pb2 as ReleasePokemonMessage,
+    UseItemCaptureMessage_pb2 as UseItemCaptureMessage,
+    UseItemEggIncubatorMessage_pb2 as UseItemEggIncubatorMessage,
+    RecycleInventoryItemMessage_pb2 as RecycleInventoryItemMessage,
+    NicknamePokemonMessage_pb2 as NicknamePokemonMessage,
+    UseItemPotionMessage_pb2 as UseItemPotionMessage,
+    UseItemReviveMessage_pb2 as UseItemReviveMessage,
+    SetPlayerTeamMessage_pb2 as SetPlayerTeamMessage,
+    SetFavoritePokemonMessage_pb2 as SetFavoritePokemonMessage,
+    LevelUpRewardsMessage_pb2 as LevelUpRewardsMessage,
+    UseItemXpBoostMessage_pb2 as UseItemXpBoostMessage,
+    UpgradePokemonMessage_pb2 as UpgradePokemonMessage
+)
 
-# Load local
-import api
-from custom_exceptions import GeneralPogoException
-from inventory import Inventory, items
-from location import Location
-from state import State
-
-import requests
-import logging
-import time
-
-# Hide errors (Yes this is terrible, but prettier)
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-
-API_URL = 'https://pgorelease.nianticlabs.com/plfe/rpc'
+# Load Local
+from inventory import items
+from session_bare import PogoSessionBare
 
 
-class PogoSession(object):
-
-    def __init__(self, session, authProvider, accessToken, location):
-        self.session = session
-        self.authProvider = authProvider
-        self.accessToken = accessToken
-        self.location = location
-        if self.location.noop:
-            logging.info("Limited functionality. No location provided")
-
-        self._state = State()
-
-        self.authTicket = None
-        self.endpoint = None
-        self.endpoint = 'https://{0}{1}'.format(
-            self.createApiEndpoint(),
-            '/rpc'
-        )
-
-        # Set up Inventory
-        self.getInventory()
-
-        # Reserve for the Pushbullet Api
-        self.pushbullet = None
-
-    def __str__(self):
-        s = 'Access Token: {0}\nEndpoint: {1}\nLocation: {2}'.format(
-            self.accessToken,
-            self.endpoint,
-            self.location
-        )
-        return s
-
-    def setCoordinates(self, latitude, longitude):
-        self.location.setCoordinates(latitude, longitude)
-        self.getMapObjects(radius=1)
-
-    def getCoordinates(self):
-        return self.location.getCoordinates()
-
-    def createApiEndpoint(self):
-        payload = []
-        msg = Request_pb2.Request(
-            request_type=RequestType_pb2.GET_PLAYER
-        )
-        payload.append(msg)
-        req = self.wrapInRequest(payload)
-        res = self.request(req, API_URL)
-        if res is None:
-            logging.critical('Servers seem to be busy. Exiting.')
-            raise Exception('Could not connect to servers')
-
-        return res.api_url
-
-    def wrapInRequest(self, payload, defaults=True):
-
-        # If we haven't authenticated before
-        info = None
-        if not self.authTicket:
-            info = RequestEnvelope_pb2.RequestEnvelope.AuthInfo(
-                provider=self.authProvider,
-                token=RequestEnvelope_pb2.RequestEnvelope.AuthInfo.JWT(
-                    contents=self.accessToken,
-                    unknown2=59
-                )
-            )
-
-        # Build Envelope
-        latitude, longitude, altitude = self.getCoordinates()
-        req = RequestEnvelope_pb2.RequestEnvelope(
-            status_code=2,
-            request_id=api.getRPCId(),
-            longitude=longitude,
-            latitude=latitude,
-            altitude=altitude,
-            auth_ticket=self.authTicket,
-            unknown12=989,
-            auth_info=info
-        )
-
-        # Add requests
-        if defaults:
-            payload += self.getDefaults()
-        req.requests.extend(payload)
-
-        return req
-
-    def requestOrThrow(self, req, url=None):
-        if url is None:
-            url = self.endpoint
-
-        # Send request
-        rawResponse = self.session.post(url, data=req.SerializeToString())
-
-        # Parse it out
-        res = ResponseEnvelope_pb2.ResponseEnvelope()
-        res.ParseFromString(rawResponse.content)
-
-        # Update Auth ticket if it exists
-        if res.auth_ticket.start:
-            self.authTicket = res.auth_ticket
-
-        return res
-
-    def request(self, req, url=None):
-        try:
-            return self.requestOrThrow(req, url)
-        except Exception as e:
-            logging.error(e)
-            raise GeneralPogoException('Probably server fires.')
-
-    def wrapAndRequest(self, payload, defaults=True):
-        res = self.request(self.wrapInRequest(payload, defaults=defaults))
-        if defaults:
-            self.parseDefault(res)
-        if res is None:
-            logging.critical(res)
-            logging.critical('Servers seem to be busy. Exiting.')
-            raise Exception('No Valid Response.')
-
-        return res
-
-    @staticmethod
-    def getDefaults():
-        # Allocate for 4 default requests
-        data = [None, ] * 4
-
-        # Create Egg request
-        data[0] = Request_pb2.Request(
-            request_type=RequestType_pb2.GET_HATCHED_EGGS
-        )
-
-        # Create Inventory Request
-        data[1] = Request_pb2.Request(
-            request_type=RequestType_pb2.GET_INVENTORY,
-            request_message=GetInventoryMessage_pb2.GetInventoryMessage(
-                last_timestamp_ms=0
-            ).SerializeToString()
-        )
-
-        # Create Badge request
-        data[2] = Request_pb2.Request(
-            request_type=RequestType_pb2.CHECK_AWARDED_BADGES
-        )
-
-        # Create Settings request
-        data[3] = Request_pb2.Request(
-            request_type=RequestType_pb2.DOWNLOAD_SETTINGS,
-            request_message=DownloadSettingsMessage_pb2.DownloadSettingsMessage(
-                hash="4a2e9bc330dae60e7b74fc85b98868ab4700802e"
-            ).SerializeToString()
-        )
-
-        return data
-
-    # Parse the default responses
-    def parseDefault(self, res):
-        try:
-            self._state.eggs.ParseFromString(res.returns[1])
-            self._state.inventory.ParseFromString(res.returns[2])
-            self._state.badges.ParseFromString(res.returns[3])
-            self._state.settings.ParseFromString(res.returns[4])
-        except Exception as e:
-            logging.error(e)
-            raise GeneralPogoException("Error parsing response. Malformed response")
-
-        # Finally make inventory usable
-        item = self._state.inventory.inventory_delta.inventory_items
-        self.inventory = Inventory(item)
-
-    # Hooks for those bundled in default
-    # Getters
-    def getEggs(self):
-        self.getProfile()
-        return self._state.eggs
-
-    def getInventory(self):
-        self.getProfile()
-        return self.inventory
-
-    def getBadges(self):
-        self.getProfile()
-        return self._state.badges
-
-    def getDownloadSettings(self):
-        self.getProfile()
-        return self._state.settings
-
-    # Check, so we don't have to start another request
-    def checkEggs(self):
-        return self._state.eggs
-
-    def checkInventory(self):
-        return self.inventory
-
-    def checkBadges(self):
-        return self._state.badges
-
-    def checkDownloadSettings(self):
-        return self._state.settings
+class PogoSession(PogoSessionBare):
+    """Session class with more robust calls"""
 
     # Core api calls
     # Get profile
     def getProfile(self):
         # Create profile request
-        payload = [Request_pb2.Request(
-            request_type=RequestType_pb2.GET_PLAYER
+        payload = [Request.Request(
+            request_type=RequestType.GET_PLAYER
         )]
 
         # Send
@@ -257,6 +49,23 @@ class PogoSession(object):
         # Return everything
         return self._state.profile
 
+    # Hooks for those bundled in default
+    def getEggs(self):
+        self.getProfile()
+        return self._state.eggs
+
+    def getInventory(self):
+        self.getProfile()
+        return self._inventory
+
+    def getBadges(self):
+        self.getProfile()
+        return self._state.badges
+
+    def getDownloadSettings(self):
+        self.getProfile()
+        return self._state.settings
+
     # Get Location
     def getMapObjects(self, radius=10, bothDirections=True):
         # Work out location details
@@ -265,9 +74,9 @@ class PogoSession(object):
         timestamps = [0, ] * len(cells)
 
         # Create request
-        payload = [Request_pb2.Request(
-            request_type=RequestType_pb2.GET_MAP_OBJECTS,
-            request_message=GetMapObjectsMessage_pb2.GetMapObjectsMessage(
+        payload = [Request.Request(
+            request_type=RequestType.GET_MAP_OBJECTS,
+            request_message=GetMapObjectsMessage.GetMapObjectsMessage(
                 cell_id=cells,
                 since_timestamp_ms=timestamps,
                 latitude=latitude,
@@ -288,9 +97,9 @@ class PogoSession(object):
     def getFortSearch(self, fort):
 
         # Create request
-        payload = [Request_pb2.Request(
-            request_type=RequestType_pb2.FORT_SEARCH,
-            request_message=FortSearchMessage_pb2.FortSearchMessage(
+        payload = [Request.Request(
+            request_type=RequestType.FORT_SEARCH,
+            request_message=FortSearchMessage.FortSearchMessage(
                 fort_id=fort.id,
                 player_latitude=self.location.latitude,
                 player_longitude=self.location.longitude,
@@ -312,9 +121,9 @@ class PogoSession(object):
     def getFortDetails(self, fort):
 
         # Create request
-        payload = [Request_pb2.Request(
-            request_type=RequestType_pb2.FORT_DETAILS,
-            request_message=FortDetailsMessage_pb2.FortDetailsMessage(
+        payload = [Request.Request(
+            request_type=RequestType.FORT_DETAILS,
+            request_message=FortDetailsMessage.FortDetailsMessage(
                 fort_id=fort.id,
                 latitude=fort.latitude,
                 longitude=fort.longitude,
@@ -334,9 +143,9 @@ class PogoSession(object):
     def encounterPokemon(self, pokemon):
 
         # Create request
-        payload = [Request_pb2.Request(
-            request_type=RequestType_pb2.ENCOUNTER,
-            request_message=EncounterMessage_pb2.EncounterMessage(
+        payload = [Request.Request(
+            request_type=RequestType.ENCOUNTER,
+            request_message=EncounterMessage.EncounterMessage(
                 encounter_id=pokemon.encounter_id,
                 spawn_point_id=pokemon.spawn_point_id,
                 player_latitude=self.location.latitude,
@@ -354,19 +163,23 @@ class PogoSession(object):
         return self._state.encounter
 
     # Upon Encounter, try and catch
-    def catchPokemon(self, pokemon, pokeball=1):
+    def catchPokemon(
+        self, pokemon, pokeball=items.POKE_BALL,
+        normalized_reticle_size=1.950, hit_pokemon=True,
+        spin_modifier=0.850, normalized_hit_position=1.0
+    ):
 
         # Create request
-        payload = [Request_pb2.Request(
-            request_type=RequestType_pb2.CATCH_POKEMON,
-            request_message=CatchPokemonMessage_pb2.CatchPokemonMessage(
+        payload = [Request.Request(
+            request_type=RequestType.CATCH_POKEMON,
+            request_message=CatchPokemonMessage.CatchPokemonMessage(
                 encounter_id=pokemon.encounter_id,
                 pokeball=pokeball,
-                normalized_reticle_size=1.950,
+                normalized_reticle_size=normalized_reticle_size,
                 spawn_point_id=pokemon.spawn_point_id,
-                hit_pokemon=True,
-                spin_modifier=0.850,
-                normalized_hit_position=1.0
+                hit_pokemon=hit_pokemon,
+                spin_modifier=spin_modifier,
+                normalized_hit_position=normalized_hit_position
             ).SerializeToString()
         )]
 
@@ -383,9 +196,9 @@ class PogoSession(object):
     def useItemCapture(self, item_id, pokemon):
 
         # Create request
-        payload = [Request_pb2.Request(
-            request_type=RequestType_pb2.USE_ITEM_CAPTURE,
-            request_message=UseItemCaptureMessage_pb2.UseItemCaptureMessage(
+        payload = [Request.Request(
+            request_type=RequestType.USE_ITEM_CAPTURE,
+            request_message=UseItemCaptureMessage.UseItemCaptureMessage(
                 item_id=item_id,
                 encounter_id=pokemon.encounter_id
             ).SerializeToString()
@@ -404,11 +217,11 @@ class PogoSession(object):
     def useItemPotion(self, item_id, pokemon):
 
         # Create Request
-        payload = [Request_pb2.Request(
-            request_type = RequestType_pb2.USEITEMPOTIONMESSAGE,
-            request_message = UseItemPotionMessage_pb2.UseItemPotionMessage(
-                item_id = item_id,
-                pokemon_id = pokemon.id
+        payload = [Request.Request(
+            request_type=RequestType.USE_ITEM_POTION,
+            request_message=UseItemPotionMessage.UseItemPotionMessage(
+                item_id=item_id,
+                pokemon_id=pokemon.id
             ).SerializeToString()
         )]
 
@@ -422,14 +235,14 @@ class PogoSession(object):
         return self._state.itemPotion
 
     # Use a Revive
-    def useItemRevive(self, item_id,pokemon):
+    def useItemRevive(self, item_id, pokemon):
 
         # Create request
-        payload = [Request_pb2.Request(
-            request_type = RequestType_pb2.USEITEMREVIVEMESSAGE,
-            request_message = UseItemReviveMessage_pb2.UseItemReviveMessage(
-                item_id = item_id,
-                pokemon_id = pokemon.id
+        payload = [Request.Request(
+            request_type=RequestType.USE_ITEM_REVIVE,
+            request_message=UseItemReviveMessage.UseItemReviveMessage(
+                item_id=item_id,
+                pokemon_id=pokemon.id
             ).SerializeToString()
         )]
 
@@ -445,10 +258,9 @@ class PogoSession(object):
     # Evolve Pokemon
     def evolvePokemon(self, pokemon):
 
-        # Create request
-        payload = [Request_pb2.Request(
-            request_type=RequestType_pb2.EVOLVE_POKEMON,
-            request_message=EvolvePokemonMessage_pb2.EvolvePokemonMessage(
+        payload = [Request.Request(
+            request_type=RequestType.EVOLVE_POKEMON,
+            request_message=EvolvePokemonMessage.EvolvePokemonMessage(
                 pokemon_id=pokemon.id
             ).SerializeToString()
         )]
@@ -462,19 +274,17 @@ class PogoSession(object):
         # Return everything
         return self._state.evolve
 
-    # Transfer Pokemon
     def releasePokemon(self, pokemon):
 
-        # Create request
-        payload = [Request_pb2.Request(
-            request_type=RequestType_pb2.RELEASE_POKEMON,
-            request_message=ReleasePokemonMessage_pb2.ReleasePokemonMessage(
+        payload = [Request.Request(
+            request_type=RequestType.RELEASE_POKEMON,
+            request_message=ReleasePokemonMessage.ReleasePokemonMessage(
                 pokemon_id=pokemon.id
             ).SerializeToString()
         )]
 
         # Send
-        res = self.wrapAndRequest(payload)
+        res = self.wrapAndRequest(payload, defaults=False)
 
         # Parse
         self._state.release.ParseFromString(res.returns[0])
@@ -482,13 +292,49 @@ class PogoSession(object):
         # Return everything
         return self._state.release
 
+    def getLevelUp(self, newLevel):
+
+        payload = [Request.Request(
+            request_type=RequestType.LEVEL_UP_REWARDS,
+            request_message=LevelUpRewardsMessage.LevelUpRewardsMessage(
+                level=newLevel
+            ).SerializeToString()
+        )]
+
+        # Send
+        res = self.wrapAndRequest(payload, defaults=False)
+
+        # Parse
+        self._state.levelUp.ParseFromString(res.returns[0])
+
+        # Return everything
+        return self._state.levelUp
+
+    def useXpBoost(self):
+
+        payload = [Request.Request(
+            request_type=RequestType.USE_ITEM_XP_BOOST,
+            request_message=UseItemXpBoostMessage.UseItemXpBoostMessage(
+                item_id=items.LUCKY_EGG
+            ).SerializeToString()
+        )]
+
+        # Send
+        res = self.wrapAndRequest(payload, defaults=False)
+
+        # Parse
+        self._state.xpBoost.ParseFromString(res.returns[0])
+
+        # Return everything
+        return self._state.xpBoost
+
     # Throw away items
     def recycleItem(self, item_id, count):
 
         # Create request
-        payload = [Request_pb2.Request(
-            request_type=RequestType_pb2.RECYCLE_INVENTORY_ITEM,
-            request_message=RecycleInventoryItemMessage_pb2.RecycleInventoryItemMessage(
+        payload = [Request.Request(
+            request_type=RequestType.RECYCLE_INVENTORY_ITEM,
+            request_message=RecycleInventoryItemMessage.RecycleInventoryItemMessage(
                 item_id=item_id,
                 count=count
             ).SerializeToString()
@@ -507,9 +353,9 @@ class PogoSession(object):
     def setEgg(self, item, pokemon):
 
         # Create request
-        payload = [Request_pb2.Request(
-            request_type=RequestType_pb2.USE_ITEM_EGG_INCUBATOR,
-            request_message=UseItemEggIncubatorMessage_pb2.UseItemEggIncubatorMessage(
+        payload = [Request.Request(
+            request_type=RequestType.USE_ITEM_EGG_INCUBATOR,
+            request_message=UseItemEggIncubatorMessage.UseItemEggIncubatorMessage(
                 item_id=item.id,
                 pokemon_id=pokemon.id
             ).SerializeToString()
@@ -524,11 +370,12 @@ class PogoSession(object):
         # Return everything
         return self._state.incubator
 
+    # Set the name of a given pokemon
     def nicknamePokemon(self, pokemon, nickname):
         # Create request
-        payload = [Request_pb2.Request(
-            request_type=RequestType_pb2.NICKNAME_POKEMON,
-            request_message=NicknamePokemonMessage_pb2.NicknamePokemonMessage(
+        payload = [Request.Request(
+            request_type=RequestType.NICKNAME_POKEMON,
+            request_message=NicknamePokemonMessage.NicknamePokemonMessage(
                 pokemon_id=pokemon.id,
                 nickname=nickname
             ).SerializeToString()
@@ -547,11 +394,11 @@ class PogoSession(object):
     def setFavoritePokemon(self, pokemon, is_favorite):
 
         # Create Request
-        payload = [Request_pb2.Request(
-            request_type = RequestType_pb2.SETFAVORITEPOKEMONMESSAGE,
-            request_message = SetFavoritePokemonMessage_pb2.SetFavoritePokemonMessage(
-                pokemon_id = pokemon.id,
-                is_favorite = is_favorite
+        payload = [Request.Request(
+            request_type=RequestType.SET_FAVORITE_POKEMON,
+            request_message=SetFavoritePokemonMessage.SetFavoritePokemonMessage(
+                pokemon_id=pokemon.id,
+                is_favorite=is_favorite
             ).SerializeToString()
         )]
 
@@ -564,14 +411,34 @@ class PogoSession(object):
         # Return Everything
         return self._state.favoritePokemon
 
+    # Upgrade a Pokemon's CP
+    def upgradePokemon(self, pokemon):
+
+        # Create request
+        payload = [Request.Request(
+            request_type=RequestType.UPGRADE_POKEMON,
+            request_message=UpgradePokemonMessage.UpgradePokemonMessage(
+                pokemon_id=pokemon.id
+            ).SerializeToString()
+        )]
+
+        # Send
+        res = self.wrapAndRequest(payload, defaults=False)
+
+        # Parse
+        self._state.upgradePokemon.ParseFromString(res.returns[0])
+
+        # Return everything
+        return self._state.upgradePokemon
+
     # Choose player's team: "BLUE","RED", or "YELLOW".
     def setPlayerTeam(self, team):
 
         # Create request
-        payload = [Request_pb2.Request(
-            request_type = RequestType_pb2.SETPLAYERTEAMMESSAGE,
-            request_message = SetPlayerTeamMessage_pb2.SetPlayerTeamMessage(
-                team = team
+        payload = [Request.Request(
+            request_type=RequestType.SET_PLAYER_TEAM,
+            request_message=SetPlayerTeamMessage.SetPlayerTeamMessage(
+                team=team
             ).SerializeToString()
         )]
 
@@ -583,65 +450,3 @@ class PogoSession(object):
 
         # Return everything
         return self._state.playerTeam
-
-    # These act as more logical functions.
-    # Might be better to break out seperately
-    # Walk over to position in meters
-    def walkTo(self, olatitude, olongitude, epsilon=10, step=7.5, search_each=None, walk_and_catch_callback=None):
-        if step >= epsilon:
-            raise GeneralPogoException("Walk may never converge")
-
-        if self.location.noop:
-            raise GeneralPogoException("Location not set")
-
-        # Calculate distance to position
-        latitude, longitude, _ = self.getCoordinates()
-        dist = closest = Location.getDistance(
-            latitude,
-            longitude,
-            olatitude,
-            olongitude
-        )
-
-        if closest > 0:
-            # Run walk
-            divisions = closest / step
-            dLat = (latitude - olatitude) / divisions
-            dLon = (longitude - olongitude) / divisions
-        else:
-            # Don't want to catch a second one too fast
-            time.sleep(2)
-
-        logging.info("Walking %f meters. This will take %f seconds..." % (dist, dist / step))
-
-        # Keep track of seconds (sleep) to make sure we're not doing to many searches.
-        seconds = 0
-        while dist > epsilon:
-            logging.debug("%f m -> %f m away", closest - dist, closest)
-            latitude -= dLat
-            longitude -= dLon
-            self.setCoordinates(
-                latitude,
-                longitude
-            )
-            time.sleep(1)
-            dist = Location.getDistance(
-                latitude,
-                longitude,
-                olatitude,
-                olongitude
-            )
-
-            # Search each x seconds for pokemon
-            if search_each:
-                if walk_and_catch_callback and seconds > search_each:
-                    walk_and_catch_callback(self)
-                    seconds = 0
-
-                seconds += 1
-
-    def setup_pushbullet(self, api_key, api_device):
-        self.pushbullet = PushBulletNotify(api_key, api_device)
-        devices = self.pushbullet.get_devices()
-        self.pushbullet.set_device()
-        return devices
