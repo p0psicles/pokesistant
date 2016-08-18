@@ -14,8 +14,8 @@ define([
             $scope.master = {};
             $scope.loading = false;
 
-            $scope.getPokemonList = function() {
-                $http.get('/getPokemon').then(function(response){
+            $scope.getPokemonList = function () {
+                $http.get('/getPokemon').then(function (response) {
                     PokemonService.setPokemons(response.data.pokemons);
                     console.log(PokemonService.getPokemons());
                     $location.path('/pokemonList');
@@ -29,7 +29,7 @@ define([
                     if (user.name && user.password) {
                         // PTC
                         data = {'username': user.name, 'password': user.password, 'auth': 'ptc'};
-                        var requestPogoSession = 'http://localhost:8080/getPogoSession';
+                        var requestPogoSession = '/getPogoSession';
                     } else if (user.email && user.password) {
                         // Google
                         data = {'username': user.email, 'password': user.password};
@@ -38,14 +38,6 @@ define([
                         $scope.error = true;
                         $scope.errorMessage = 'No username/email and/or password was defined';
                     }
-                if(user.name && user.password) {
-                    // PTC
-                    data = {'username': user.name,'password' : user.password, 'auth': 'ptc'};
-                    var requestPogoSession = '/getPogoSession';
-                } else if(user.email && user.password) {
-                    // Google
-                    data = {'username': user.email, 'password' : user.password};
-                    var requestPogoSession = '/getPogoSession';
                 } else {
                     $scope.error = true;
                     $scope.errorMessage = 'Please enter login credentials';
@@ -60,15 +52,17 @@ define([
                     }, function errorCallback(error) {
                         $scope.loading = false;
                         $scope.error = true;
-                        $scope.errorMessage = 'Unable to login. Error code: '+error.status;
+                        $scope.errorMessage = 'Unable to login. Error code: ' + error.status;
                         console.error('Unable to login because of error code ' + error.status);
                     });
                 }
-            };
+            }
+            ;
 
             $scope.reset = function () {
                 $scope.user = angular.copy(scope.master);
             };
 
-        }]);
+        }
+        ]);
 });
