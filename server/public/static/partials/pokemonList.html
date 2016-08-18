@@ -5,6 +5,7 @@
     <option value="-individual_defense">defence</option>
     <option value="-individual_attack">attack</option>
     <option value="-individual_stamina">stamina</option>
+    <option value="-creation_time_ms">time catched</option>
 </select>
 <input class="name-filter" type="search" ng-model="q" placeholder="filter pokemon..." aria-label="filter on name"/>
 <div id="pokemonList">
@@ -13,7 +14,9 @@
             <img ng-src="http://assets.pokemon.com/assets/cms2/img/pokedex/detail/{{pokemon.image_nr}}.png" /><br/>
             Pokemon: {{pokemon.pokemon_name}} | IV: {{pokemon.IV}} | CP: {{pokemon.cp}} <br/>
             Attack: {{pokemon.individual_attack}} | Defense: {{pokemon.individual_defense}} | Stamina:
-            {{pokemon.individual_stamina}} | Move 1: {{pokemon.move_1_desc}} | Move 2: {{pokemon.move_2_desc}}
+            {{pokemon.individual_stamina}} <br />
+            Move 1: {{pokemon.move_1_desc}} <br />
+            Move 2: {{pokemon.move_2_desc}}
             <br/>
             <progressbar class="progress-striped active" animate="true" max="15" value="{{pokemon.individual_attack}}" type="success">
                 <i><span count-to="{{pokemon.individual_attack}}" duration="3" count-from="0"></span> / 15</i></progressbar>
