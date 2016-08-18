@@ -34,6 +34,10 @@ class Location(object):
         return s
 
     @staticmethod
+    def getDistance(*coords):
+        return gpxpy.geo.haversine_distance(*coords)
+
+    @staticmethod
     def getLatLongIndex(latitude, longitude):
         return CellId.from_lat_lng(
             LatLng.from_degrees(
@@ -43,20 +47,17 @@ class Location(object):
         ).id()
 
     @staticmethod
-    def getDistance(*coords):
-        return gpxpy.geo.haversine_distance(*coords)
-
-    @staticmethod
-    def Noop():
+    def noop():
         return Location(None, None, noop=True)
 
     def setLocation(self, search):
         try:
             geo = self.locator.geocode(search)
-        except Exception as e:
-            raise GeneralPogoException('Error in Geo Request, with exception: {0}'.format(e))
-        else:
-            return geo.latitude, geo.longitude, geo.altitude
+        except:
+            raise GeneralPogoException('Error in Geo Request')
+
+        # 8 is arbitrary, but not as suspicious as 0
+        return geo.latitude, geo.longitude, geo.altitude or 8
 
     def setCoordinates(self, latitude, longitude):
         self.latitude = latitude

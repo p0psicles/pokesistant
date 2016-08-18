@@ -8,13 +8,16 @@ from urlparse import urljoin
 time.sleep(3)
 import sys
 import sqlite3, os
+from requests.exceptions import (ConnectionError, HTTPError)
 
 sys.path.insert(1, os.path.abspath(os.path.join(os.path.dirname(__file__), 'lib')))
 sys.path.append('libs')
 
+
 from lib.pokemongo.api import PokeAuthSession
 from lib.pokemongo.location import Location
 from lib.pokemongo.pokedex import pokedex, move_list
+from lib.pokemongo.custom_exceptions import GeneralPogoException
 
 from flask import Flask, session, redirect, url_for, \
      abort, render_template, flash, jsonify, request
@@ -82,7 +85,7 @@ def getpokemon():
     if not pogo_session:
         return redirect(url_for('openApp'))
 
-    party = pogo_session.checkInventory().party
+    party = pogo_session.getInventory().party
     pokemons = []
     attributes = ['id', 'cp', 'stamina', 'stamina_max', 'move_1', 'move_2', 'individual_attack',
                   'individual_defense', 'individual_stamina', 'nickname', 'pokemon_id', 'num_upgrades',
@@ -113,6 +116,9 @@ def get_pogo_session():
     """This route was intended for doing the login, and then store the pogo_session object
     in a session. But unfortunatly because the object is not serializable this is not possible."""
 
+    error = False
+    error_msg = ''
+
     auth = request.json.get('auth', 'google').encode('utf-8')
     username = request.json.get('username').encode('utf-8')
     password = request.json.get('password').encode('utf-8')
@@ -129,11 +135,20 @@ def get_pogo_session():
     session['password'] = password
     session['auth'] = auth
 
-    pogo_session = get_pogo_auth(username, password, auth)
+    try:
+        pogo_session = get_pogo_auth(username, password, auth)
+        access_token = pogo_session.accessToken
+    except (ConnectionError, HTTPError, GeneralPogoException) as e:
+        error = True
+        error_msg = e
+        pogo_session = None
+        access_token = ''
+
     if pogo_session:
         session['access_token'] = pogo_session.accessToken
-        return jsonify({'authenticated': bool(pogo_session), 'accessToken': pogo_session.accessToken})
-    return redirect(url_for('openApp'))
+
+    return jsonify({'authenticated': bool(pogo_session), 'accessToken': access_token,
+                    'error': error, 'error_msg': str(error_msg.message)})
 
 
 @app.route('/getSession', methods=['GET'])
