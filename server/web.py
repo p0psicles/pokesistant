@@ -67,21 +67,37 @@ def get_pogo_auth(username=None, password=None, auth='google'):
         return None
 
     if username and password:
+        # Create a new session
         pogo_session = PokeAuthSession(
             username,
             password,
             auth,
         )
-        app.config['STORE'][username] = pogo_session
+        app.config['STORE'][username] = {'session': pogo_session, 'last_update': time.time()}
+
     else:
-        pogo_session = app.config['STORE'][session.get('username')]
+        # reuse old
+        pogo_session = app.config['STORE'][session.get('username')].get('session')
 
     return pogo_session.authenticate()
 
 
+def check_refresh_session(timeout=1800):
+    username = session.get('username')
+    password = session.get('password')
+    auth = session.get('auth')
+
+    if username and app.config['STORE'][username].get('last_update') + timeout < time.time():
+        return get_pogo_auth(username, password, auth)
+    else:
+        return get_pogo_auth()
+
+
 @app.route('/getPokemon', methods=['GET'])
 def getpokemon():
-    pogo_session = get_pogo_auth()
+
+    pogo_session = check_refresh_session()
+
     if not pogo_session:
         return redirect(url_for('openApp'))
 
@@ -145,10 +161,10 @@ def get_pogo_session():
         access_token = ''
 
     if pogo_session:
-        session['access_token'] = pogo_session.accessToken
+        session['access_token'] = {'last_update': time.time(), 'token': pogo_session.accessToken}
 
     return jsonify({'authenticated': bool(pogo_session), 'accessToken': access_token,
-                    'error': error, 'error_msg': str(error_msg.message)})
+                    'error': error, 'error_msg': str(getattr(error_msg, 'message', ''))})
 
 
 @app.route('/getSession', methods=['GET'])
