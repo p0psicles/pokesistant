@@ -64,22 +64,22 @@ def get_pogo_auth(username=None, password=None, auth='google'):
     # Create PokoAuthObject
 
     if (not username or not password) and not app.config['STORE'].get(session.get('username')):
-        return None
+        abort(401)
 
     if username and password:
         # Create a new session
-        pogo_session = PokeAuthSession(
+        auth = PokeAuthSession(
             username,
             password,
             auth,
         )
+        pogo_session = auth.authenticate()
         app.config['STORE'][username] = {'session': pogo_session, 'last_update': time.time()}
-
     else:
         # reuse old
         pogo_session = app.config['STORE'][session.get('username')].get('session')
 
-    return pogo_session.authenticate()
+    return pogo_session
 
 
 def check_refresh_session(timeout=1800):
@@ -87,7 +87,9 @@ def check_refresh_session(timeout=1800):
     password = session.get('password')
     auth = session.get('auth')
 
-    if username and app.config['STORE'][username].get('last_update') + timeout < time.time():
+    if (username and
+        app.config['STORE'].get(username) and
+            app.config['STORE'][username].get('last_update') + timeout < time.time()):
         return get_pogo_auth(username, password, auth)
     else:
         return get_pogo_auth()
