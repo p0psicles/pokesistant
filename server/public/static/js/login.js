@@ -14,35 +14,47 @@ define([
             $scope.master = {};
             $scope.loading = false;
 
-            $scope.getPokemonList = function() {
-                $http.get('/getPokemon').then(function(response){
+            $scope.getPokemonList = function () {
+                $http.get('/getPokemon').then(function (response) {
                     PokemonService.setPokemons(response.data);
                     console.log(PokemonService.getPokemons());
                     $location.path('/pokemonList');
                 });
             };
             $scope.update = function (user) {
+                console.log(user);
                 // $scope.master = angular.copy(user);
                 $scope.master = undefined;
                 var data;
-                if(user.name && user.password) {
-                    // PTC
-                    data = {'username': user.name,'password' : user.password, 'auth': 'ptc'};
-                    var requestPogoSession = 'http://localhost:8080/getPogoSession';
-                } else if(user.email && user.password) {
-                    // Google
-                    data = {'username': user.email, 'password' : user.password};
-                    var requestPogoSession = '/getPogoSession';
+                if (typeof user !== "undefined") {
+                    if (user.name && user.password) {
+                        // PTC
+                        data = {'username': user.name, 'password': user.password, 'auth': 'ptc'};
+                        var requestPogoSession = 'http://localhost:8080/getPogoSession';
+                    } else if (user.email && user.password) {
+                        // Google
+                        data = {'username': user.email, 'password': user.password};
+                        var requestPogoSession = '/getPogoSession';
+                    } else {
+                        $scope.error = true;
+                        $scope.errorMessage = 'No username/email and/or password was defined';
+                    }
                 } else {
-                    throw new Error('No username or email adres was defined');
+                    $scope.error = true;
+                    $scope.errorMessage = 'Please enter login credentials';
                 }
-                if(requestPogoSession) {
+                if (requestPogoSession) {
                     $scope.loading = true;
-                    $http.post(requestPogoSession, data).then(function(response){
+                    $http.post(requestPogoSession, data).then(function successCallback(response) {
                         $scope.loading = false;
                         if (response.data.authenticated) {
                             $scope.getPokemonList();
                         }
+                    }, function errorCallback(error) {
+                        $scope.loading = false;
+                        $scope.error = true;
+                        $scope.errorMessage = 'Unable to login. Error code: '+error.status;
+                        console.error('Unable to login because of error code ' + error.status);
                     });
                 }
             };

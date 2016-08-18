@@ -8,6 +8,7 @@
 
     <div ng-switch="loginType">
         <form name="loginForm" ng-switch-when="PTC">
+            <p class="error" ng-show="error">{{errorMessage}}</p>
             Name: <input type="text" ng-model="user.name"/><br/>
             Password: <input type="password" ng-model="user.password"/>
             <input ng-disabled="loading" type="submit" ng-click="update(user)" value="Login"/>

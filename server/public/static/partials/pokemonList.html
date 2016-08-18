@@ -10,7 +10,7 @@
 <div id="pokemonList">
     <div class="pokemonTile" ng-repeat="pokemon in pokemonList | orderBy: sortBy | filter: q">
         <div>
-            <img src="http://assets.pokemon.com/assets/cms2/img/pokedex/detail/{{pokemon.image_nr}}.png"/><br/>
+            <img ng-src="http://assets.pokemon.com/assets/cms2/img/pokedex/detail/{{pokemon.image_nr}}.png" /><br/>
             Pokemon: {{pokemon.pokemon_name}} | IV: {{pokemon.IV}} | CP: {{pokemon.cp}} <br/>
             Attack: {{pokemon.individual_attack}} | Defense: {{pokemon.individual_defense}} | Stamina:
             {{pokemon.individual_stamina}}
