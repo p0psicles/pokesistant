@@ -1,34 +1,31 @@
+#!/usr/bin/env python
+
+from __future__ import unicode_literals
+
 import os
 import time
 from urlparse import urljoin
 time.sleep(3)
-if os.name in ('posix',):
-    import sys
-    sys.setdefaultencoding("utf-8")
-    import site
-else:
-    import sys
+import sys
 import sqlite3, os
+from requests.exceptions import (ConnectionError, HTTPError)
 
 sys.path.insert(1, os.path.abspath(os.path.join(os.path.dirname(__file__), 'lib')))
 sys.path.append('libs')
 
+
 from lib.pokemongo.api import PokeAuthSession
 from lib.pokemongo.location import Location
-from lib.pokemongo.pokedex import pokedex
+from lib.pokemongo.pokedex import pokedex, move_list
+from lib.pokemongo.custom_exceptions import GeneralPogoException
 
 from flask import Flask, session, redirect, url_for, \
      abort, render_template, flash, jsonify, request
 
 from contextlib import closing
-
-#from main import *
 from passlib.hash import md5_crypt
 from operator import itemgetter
 import logging
-
-# Testing UTF-8
-print sys.getdefaultencoding()
 
 # create our little application :)
 app = Flask(__name__,
@@ -88,11 +85,12 @@ def getpokemon():
     if not pogo_session:
         return redirect(url_for('openApp'))
 
-    party = pogo_session.checkInventory().party
+    party = pogo_session.getInventory().party
     pokemons = []
     attributes = ['id', 'cp', 'stamina', 'stamina_max', 'move_1', 'move_2', 'individual_attack',
                   'individual_defense', 'individual_stamina', 'nickname', 'pokemon_id', 'num_upgrades',
-                  'is_egg', 'battles_attacked', 'battles_defended', 'additional_cp_multiplier']
+                  'is_egg', 'battles_attacked', 'battles_defended', 'additional_cp_multiplier',
+                  'creation_time_ms', 'cp_multiplier', 'weight_kg']
     for pokemon in party:
         pokemon_attributes = {}
         for attr in attributes:
@@ -102,15 +100,24 @@ def getpokemon():
                                          getattr(pokemon, 'individual_defense') +
                                          getattr(pokemon, 'individual_stamina')) * (100/45.0), 0)
         pokemon_attributes['image_nr'] = str(pokemon_attributes['pokemon_id']).zfill(3)
+        pokemon_attributes['move_1_desc'] = move_list[pokemon_attributes['move_1']]
+        pokemon_attributes['move_2_desc'] = move_list[pokemon_attributes['move_2']]
+
         pokemons.append(pokemon_attributes)
 
-    return jsonify(sorted(pokemons, key=lambda k: k['IV'], reverse=True))
+    if pokemons:
+        #logging.info(str(pokemons))
+        return jsonify(pokemons=sorted(pokemons, key=lambda k: k['IV'], reverse=True))
+    return []
 
 
 @app.route('/getPogoSession', methods=['POST'])
 def get_pogo_session():
     """This route was intended for doing the login, and then store the pogo_session object
     in a session. But unfortunatly because the object is not serializable this is not possible."""
+
+    error = False
+    error_msg = ''
 
     auth = request.json.get('auth', 'google').encode('utf-8')
     username = request.json.get('username').encode('utf-8')
@@ -128,11 +135,20 @@ def get_pogo_session():
     session['password'] = password
     session['auth'] = auth
 
-    pogo_session = get_pogo_auth(username, password, auth)
+    try:
+        pogo_session = get_pogo_auth(username, password, auth)
+        access_token = pogo_session.accessToken
+    except (ConnectionError, HTTPError, GeneralPogoException) as e:
+        error = True
+        error_msg = e
+        pogo_session = None
+        access_token = ''
+
     if pogo_session:
         session['access_token'] = pogo_session.accessToken
-        return jsonify({'authenticated': bool(pogo_session), 'accessToken': pogo_session.accessToken})
-    return redirect(url_for('openApp'))
+
+    return jsonify({'authenticated': bool(pogo_session), 'accessToken': access_token,
+                    'error': error, 'error_msg': str(error_msg.message)})
 
 
 @app.route('/getSession', methods=['GET'])

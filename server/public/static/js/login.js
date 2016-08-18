@@ -14,15 +14,14 @@ define([
             $scope.master = {};
             $scope.loading = false;
 
-            $scope.getPokemonList = function () {
-                $http.get('/getPokemon').then(function (response) {
-                    PokemonService.setPokemons(response.data);
+            $scope.getPokemonList = function() {
+                $http.get('/getPokemon').then(function(response){
+                    PokemonService.setPokemons(response.data.pokemons);
                     console.log(PokemonService.getPokemons());
                     $location.path('/pokemonList');
                 });
             };
             $scope.update = function (user) {
-                console.log(user);
                 // $scope.master = angular.copy(user);
                 $scope.master = undefined;
                 var data;
@@ -39,6 +38,14 @@ define([
                         $scope.error = true;
                         $scope.errorMessage = 'No username/email and/or password was defined';
                     }
+                if(user.name && user.password) {
+                    // PTC
+                    data = {'username': user.name,'password' : user.password, 'auth': 'ptc'};
+                    var requestPogoSession = '/getPogoSession';
+                } else if(user.email && user.password) {
+                    // Google
+                    data = {'username': user.email, 'password' : user.password};
+                    var requestPogoSession = '/getPogoSession';
                 } else {
                     $scope.error = true;
                     $scope.errorMessage = 'Please enter login credentials';
