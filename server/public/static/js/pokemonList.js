@@ -12,8 +12,14 @@ define([
 
     return angular.module('myApp.pokemonList', ['ngRoute'])
 
-        .controller('PokemonListCtrl', ['$scope', 'PokemonService', function ($scope, PokemonService) {
+        .controller('PokemonListCtrl', ['$scope', '$http', 'PokemonService', function ($scope, $http, PokemonService) {
             $scope.pokemonList = PokemonService.getPokemons();
+            $scope.updateList = function () {
+                $http.get('/getPokemon').then(function (response) {
+                    PokemonService.setPokemons(response.data.pokemons);
+                    $scope.pokemonList = PokemonService.getPokemons();
+                });
+            };
             // $scope.pokemonList = [
             //     {
             //         "IV": 98.0,

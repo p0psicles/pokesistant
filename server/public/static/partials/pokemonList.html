@@ -8,6 +8,7 @@
     <option value="-creation_time_ms">time catched</option>
 </select>
 <input class="name-filter" type="search" ng-model="q" placeholder="filter pokemon..." aria-label="filter on name"/>
+<input type="submit" value="refresh" ng-click="updateList()"/>
 <div id="pokemonList">
     <div class="pokemonTile" ng-repeat="pokemon in pokemonList | orderBy: sortBy | filter: q">
         <div>
