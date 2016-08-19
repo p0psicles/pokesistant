@@ -1,26 +1,44 @@
-<div class="form-control">
-    <p>Login option:</p>
-    <select ng-model="loginType">
-        <option value="">Choose one</option>
-        <option value="PTC">PTC</option>
-        <option value="Google">Google</option>
-    </select>
+<script type="text/ng-template" id="alert.html">
+    <div ng-transclude></div>
+</script>
 
-    <div ng-switch="loginType">
-        <p class="error" ng-show="error">{{errorMessage}}</p>
-        <form name="loginForm" ng-switch-when="PTC">
-            Name: <input type="text" ng-model="user.name"/><br/>
-            Password: <input type="password" ng-model="user.password"/>
-            <input ng-disabled="loading" type="submit" ng-click="update(user)" value="Login"/>
-            <p ng-show="loading">LOADING..</p>
-        </form>
-
-        <form name="loginForm" ng-switch-when="Google">
-            E-mail: <input type="email" ng-model="user.email"/><br/>
-            Password: <input type="password" ng-model="user.password"/>
-            <input ng-disabled="loading" type="submit" ng-click="update(user)" value="Login"/>
-            <p ng-show="loading">LOADING..</p>
-        </form>
+<div>
+    <div uib-alert ng-repeat="alert in alerts" ng-class="'alert-' + alert.type" close="closeAlert($index)">{{alert.msg}}</div>
+    <div class="row">
+	    <select class="form-control" ng-model="loginType">
+	        <option value="">Login option</option>
+	        <option value="PTC">PTC</option>
+	        <option value="Google">Google</option>
+	    </select>
     </div>
-    <br />
+    <div class="row">
+	    <div ng-switch="loginType">
+	        <form name="loginForm" ng-switch-when="PTC">
+	            <div class="left-inner-addon top5">
+	            
+	                <i class="glyphicon glyphicon-user" id="username"></i>
+	                <input aria-describedby="username" placeholder="Username" class="form-control top5" type="text" ng-model="user.name"/>
+	            </div>
+	            <div class="left-inner-addon">
+	                <i class="glyphicon glyphicon-lock" id="ptc-password"></i>
+	                <input aria-describedby="ptc-password" placeholder="Password" class="form-control top5" type="password" ng-model="user.password"/>
+	            </div>
+	            <button class="form-control btn btn-primary top5" ng-disabled="loading" type="button" ng-click="update(user)">Login</button>
+	            <p ng-show="loading">LOADING..</p>
+	        </form>
+	
+	        <form name="loginForm" ng-switch-when="Google">
+	            <div class="left-inner-addon">
+	                <i class="glyphicon glyphicon-envelope" id="email"></i>
+	                <input aria-describedby="email" placeholder="Email" class="form-control top5" type="email" ng-model="user.email"/>
+	            </div>
+	            <div class="left-inner-addon">
+	                <i class="glyphicon glyphicon-lock" id="google-password"></i>
+	                <input aria-describedby="google-password" placeholder="Password" class="form-control top5" type="password" ng-model="user.password"/>
+	            </div>
+	            <button class="form-control btn btn-primary top5" ng-disabled="loading" type="button"  ng-click="update(user)">Login</button>
+	            <p ng-show="loading">LOADING..</p>
+	        </form>
+	    </div>
+    </div> 
 </div>

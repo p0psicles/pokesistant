@@ -2,6 +2,7 @@ define([
     'angular',
     'uiBootstrap',
     'angular-route',
+    'angular-animate',
     './services',
     './login',
     './pokemonList',
@@ -14,6 +15,7 @@ define([
     return angular.module('myApp', [
         'ui.bootstrap',
         'ngRoute',
+        'ngAnimate',
         'myApp.services',
         'myApp.login',
         'myApp.pokemonList',

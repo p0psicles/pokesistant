@@ -4,6 +4,7 @@
 define([
     'require',
     'angular',
+    'uiBootstrap',
     'app',
     'routes'
 ], function (require, angular) {
