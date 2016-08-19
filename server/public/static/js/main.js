@@ -2,7 +2,7 @@ require.config({
 
     // alias libraries paths
     paths: {
-        'domReady': 'domready/domReady',
+        'domReady': 'domReady/domReady',
         'angular': 'angular/angular',
         'angular-route': 'angular-route/angular-route',
         'angular-animate': 'angular-animate/angular-animate',
