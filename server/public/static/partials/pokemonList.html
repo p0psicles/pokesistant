@@ -1,34 +1,62 @@
-<select class="form-control" ng-model="sortBy">
-    <option value="">IV score</option>
-    <option value="-cp">CP</option>
-    <option value="pokemon_name">Name</option>
-    <option value="-individual_defense">defence</option>
-    <option value="-individual_attack">attack</option>
-    <option value="-individual_stamina">stamina</option>
-    <option value="-creation_time_ms">time catched</option>
-</select>
-<input class="name-filter" type="search" ng-model="q" placeholder="filter pokemon..." aria-label="filter on name"/>
-<input type="submit" value="refresh" ng-click="updateList()"/>
-<div id="pokemonList">
-    <div class="pokemonTile" ng-repeat="pokemon in pokemonList | orderBy: sortBy | filter: q">
-        <div>
-            <img ng-src="http://assets.pokemon.com/assets/cms2/img/pokedex/detail/{{pokemon.image_nr}}.png" /><br/>
-            Pokemon: {{pokemon.pokemon_name}} | IV: {{pokemon.IV}} | CP: {{pokemon.cp}} <br/>
-            Date Catched: {{pokemon.creation_time_ms | date:'dd-MM-yyyy'}} <br/>
-            Move 1: {{pokemon.move_1_desc}} <br/>
-            Move 2: {{pokemon.move_2_desc}} <br/>
-            <div class="progress-bar" role="progressbar" aria-valuenow={{pokemon.individual_attack}}
-                 aria-valuemin="0" aria-valuemax="15" style="width:70%">
-                Attack: {{pokemon.individual_attack}}
-            </div>
-            <div class="progress-bar" role="progressbar" aria-valuenow={{pokemon.individual_defense}}
-                 aria-valuemin="0" aria-valuemax="15" style="width:70%">
-                Defense: {{pokemon.individual_defense}}
-            </div>
-            <div class="progress-bar" role="progressbar" aria-valuenow={{pokemon.individual_stamina}}
-                 aria-valuemin="0" aria-valuemax="15" style="width:70%">
-                Stamina: {{pokemon.individual_stamina}}
-            </div>
-        </div>
-    </div>
+<div class="row">
+<div class="col-lg-12">
+	<select class="form-control" ng-model="sortBy">
+	    <option value="">IV score</option>
+	    <option value="-cp">CP</option>
+	    <option value="pokemon_name">Name</option>
+	    <option value="-individual_defense">defence</option>
+	    <option value="-individual_attack">attack</option>
+	    <option value="-individual_stamina">stamina</option>
+	    <option value="-creation_time_ms">time catched</option>
+	</select>
 </div>
+</div><!-- End row -->
+
+<div class="row top10">
+<div class="col-lg-2">
+    <input class="name-filter form-control" type="search" ng-model="q" placeholder="filter pokemon..." aria-label="filter on name"/>
+</div>
+
+<div class="col-lg-2">
+    <button class="btn btn-primary" type="button" ng-click="updateList()">refresh</button>
+</div>
+</div><!-- End row -->
+
+
+
+    
+	    <div class="row">
+		    <div class="col-lg-12" id="pokemonList">
+			    <div class="pokemonTile" ng-repeat="pokemon in pokemonList | orderBy: sortBy | filter: q">
+			        <div>
+			            <img ng-src="http://assets.pokemon.com/assets/cms2/img/pokedex/detail/{{pokemon.image_nr}}.png" />
+			            <div class="pull-left top20">
+			            <div class="score-iv">IV: {{pokemon.IV}}</div>
+			            <div class="score-cp">CP: {{pokemon.cp}}</div>
+			            </div>
+			            <div class="bottom-tile">
+			            Pokemon: {{pokemon.pokemon_name}}<br/>
+			            Date Catched: {{pokemon.creation_time_ms | date:'dd-MM-yyyy h:m:s'}} <br/>
+			            Move 1: {{pokemon.move_1_desc}} <br/>
+			            Move 2: {{pokemon.move_2_desc}} <br/>
+			            </div>
+			            <div class="progress-bar" role="progressbar" aria-valuenow={{pokemon.individual_attack}}
+			                 aria-valuemin="0" aria-valuemax="15" style="width:70%">
+			                Attack: {{pokemon.individual_attack}}
+			            </div>
+			            <div class="progress-bar" role="progressbar" aria-valuenow={{pokemon.individual_defense}}
+			                 aria-valuemin="0" aria-valuemax="15" style="width:70%">
+			                Defense: {{pokemon.individual_defense}}
+			            </div>
+			            <div class="progress-bar" role="progressbar" aria-valuenow={{pokemon.individual_stamina}}
+			                 aria-valuemin="0" aria-valuemax="15" style="width:70%">
+			                Stamina: {{pokemon.individual_stamina}}
+			            </div>
+			            
+			        </div>
+			    </div>
+		    </div>
+	    </div>
+    
+
+</div> <!-- End row -->

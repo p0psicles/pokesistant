@@ -1,5 +1,25 @@
 /* app css stylesheet */
 
+/* Main container */
+div.main {
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+.top5 { margin-top:5px; }
+.top7 { margin-top:7px; }
+.top10 { margin-top:10px; }
+.top15 { margin-top:15px; }
+.top17 { margin-top:17px; }
+.top20 { margin-top:20px; }
+.top30 { margin-top:30px; }
+
+.col-centered {
+    float: none;
+    margin: 0 auto;
+    display: center;
+}
+
 .menu {
     list-style: none;
     border-bottom: 0.1em solid black;
@@ -36,19 +56,38 @@
 
 #pokemonList {
     margin-top: 10px;
-    margin-left: 50px;
-    margin-right: 50px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .pokemonTile {
     width: 300px;
-    /*height: 100px;*/
+    height: 250px;
     outline: 1px solid;
     float: left;
+    margin-bottom: 2px;
+    padding-left: 15px;
+    padding-bottom: 5px;
+    padding-right: 15px;
+}
+
+.pokemonTile .score-iv, .pokemonTile .score-cp {
+	font-size: 1.5em;
+	font-family: fantasy;
+	letter-spacing: 2px;
+} 
+
+div.bottom-tile {
+	display: inline-block;
 }
 
 .pokemonTile > div {
     margin-left: 5px;
+}
+
+.pokemonTile img {
+	height: 100px;
+	float: left;
 }
 
 .error {
