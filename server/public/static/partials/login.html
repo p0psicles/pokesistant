@@ -11,18 +11,28 @@
     </select>
     <div ng-switch="loginType">
         <form name="loginForm" ng-switch-when="PTC">
-            <label for="username">User:</label>
-            <input id="username" class="form-control" type="text" ng-model="user.name"/><br/>
-            <label for="psw">Password:</label>
-            <input id="psw" class="form-control" type="password" ng-model="user.password"/>
+            <div class="input-group">
+                <span class="glyphicon glyphicon-user input-group-addon" id="username"></span>
+                <input aria-describedby="username" placeholder="Username" class="form-control" type="text" ng-model="user.name"/><br/>
+            </div>
+            <div class="input-group">
+                <span class="glyphicon glyphicon-lock input-group-addon" id="ptc-password"></span>
+                <input aria-describedby="ptc-password" placeholder="Password" class="form-control" type="password" ng-model="user.password"/>
+            </div>
             <button class="form-control" ng-disabled="loading" type="button" class="btn btn-default" ng-click="update(user)">Login</button>
             <p ng-show="loading">LOADING..</p>
         </form>
 
         <form name="loginForm" ng-switch-when="Google">
-            E-mail: <input class="form-control" type="email" ng-model="user.email"/><br/>
-            Password: <input class="form-control" type="password" ng-model="user.password"/>
-            <input ng-disabled="loading" type="submit" ng-click="update(user)" value="Login"/>
+            <div class="input-group">
+                <span class="glyphicon glyphicon-envelope input-group-addon" id="email"></span>
+                <input aria-describedby="email" placeholder="Email" class="form-control" type="email" ng-model="user.email"/>
+            </div>
+            <div class="input-group">
+                <span class="glyphicon glyphicon-lock input-group-addon" id="google-password"></span>
+                <input aria-describedby="google-password" placeholder="Password" class="form-control" type="password" ng-model="user.password"/>
+            </div>
+            <button class="form-control" ng-disabled="loading" type="button" class="btn btn-default" ng-click="update(user)">Login</button>
             <p ng-show="loading">LOADING..</p>
         </form>
     </div>
