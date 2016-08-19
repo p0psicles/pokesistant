@@ -156,7 +156,7 @@ class LoginHandler(JsonHandler):
         data = tornado.escape.json_decode(self.request.body)
         username = data.get('username')
         password = data.get('password')
-        auth = data.get('auth')
+        auth = data.get('auth', 'google')
 
         if not username or not password:
             self.response = {'error': 'need username and password'}
