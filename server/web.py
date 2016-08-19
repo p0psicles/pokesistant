@@ -15,7 +15,7 @@ import logging
 import tornado
 from tornado.options import define, options
 from tornado.web import Application
-from server.webserver.core import (HomeHandler, PokemonHandler, LoginHandler)
+from webserver.core import (HomeHandler, PokemonHandler, LoginHandler)
 from tornado.httpserver import HTTPServer
 
 
