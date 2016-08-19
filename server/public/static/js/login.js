@@ -1,6 +1,7 @@
 define([
     'angular',
-    // 'ui.bootstrap',
+    'angular-animate',
+    'uiBootstrap',
     './services',
     './login',
     './pokemonList',
@@ -9,10 +10,15 @@ define([
     './version/interpolate-filter'
 ], function (angular) {
     'use strict';
-    return angular.module('myApp.login', ['ngRoute'])
+    return angular.module('myApp.login', ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
         .controller('LoginCtrl', ['$scope', '$http', 'PokemonService', '$location', function ($scope, $http, PokemonService, $location) {
             $scope.master = {};
             $scope.loading = false;
+
+            $scope.alerts = [];
+            $scope.closeAlert = function (index) {
+                $scope.alerts.splice(index, 1);
+            };
 
             $scope.getPokemonList = function () {
                 $http.get('/pokemon').then(function (response) {
@@ -35,12 +41,10 @@ define([
                         data = {'username': user.email, 'password': user.password};
                         var requestPogoSession = '/login';
                     } else {
-                        $scope.error = true;
-                        $scope.errorMessage = 'No username/email and/or password was defined';
+                        $scope.alerts.push({type: 'warning', msg: 'No username/email and/or password was defined'});
                     }
                 } else {
-                    $scope.error = true;
-                    $scope.errorMessage = 'Please enter login credentials';
+                    $scope.alerts.push({type: 'warning', msg: 'Please enter login credentials'});
                 }
                 if (requestPogoSession) {
                     $scope.loading = true;
@@ -51,8 +55,7 @@ define([
                         }
                     }, function errorCallback(error) {
                         $scope.loading = false;
-                        $scope.error = true;
-                        $scope.errorMessage = 'Unable to login. Error code: ' + error.status;
+                        $scope.alerts.push({type: 'danger', msg: 'Unable to login. Error code: ' + error.status});
                         console.error('Unable to login because of error code ' + error.status);
                     });
                 }

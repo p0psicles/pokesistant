@@ -17,8 +17,6 @@
             Date Catched: {{pokemon.creation_time_ms | date:'dd-MM-yyyy'}} <br/>
             Move 1: {{pokemon.move_1_desc}} <br/>
             Move 2: {{pokemon.move_2_desc}} <br/>
-            <progressbar class="progress-striped active" animate="true" max="15" value="{{pokemon.individual_attack}}" type="success">
-                <i><span count-to="{{pokemon.individual_attack}}" duration="3" count-from="0"></span> / 15</i></progressbar>
             <div class="progress-bar" role="progressbar" aria-valuenow={{pokemon.individual_attack}}
                  aria-valuemin="0" aria-valuemax="15" style="width:70%">
                 Attack: {{pokemon.individual_attack}}

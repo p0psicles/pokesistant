@@ -10,6 +10,7 @@
     "angular-route": "~1.5.0",
     "angular-bootstrap": "~2.0.1",
     "requirejs": "^2.2.0",
-    "domReady": "requirejs-domready#^2.0.1"
+    "domReady": "requirejs-domready#^2.0.1",
+    "angular-animate": "^1.5.8"
   }
 }

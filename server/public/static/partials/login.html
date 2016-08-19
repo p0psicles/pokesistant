@@ -1,3 +1,7 @@
+<script type="text/ng-template" id="alert.html">
+    <div ng-transclude></div>
+</script>
+
 <div class="form-control">
     <p>Login option:</p>
     <select ng-model="loginType">
@@ -6,12 +10,12 @@
         <option value="Google">Google</option>
     </select>
 
+    <div uib-alert ng-repeat="alert in alerts" ng-class="'alert-' + alert.type" close="closeAlert($index)">{{alert.msg}}</div>
     <div ng-switch="loginType">
-        <p class="error" ng-show="error">{{errorMessage}}</p>
         <form name="loginForm" ng-switch-when="PTC">
             Name: <input type="text" ng-model="user.name"/><br/>
             Password: <input type="password" ng-model="user.password"/>
-            <input ng-disabled="loading" type="submit" ng-click="update(user)" value="Login"/>
+            <button ng-disabled="loading" type="button" class="btn btn-default" ng-click="update(user)">LoginEe</button>
             <p ng-show="loading">LOADING..</p>
         </form>
 
