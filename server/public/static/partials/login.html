@@ -4,37 +4,40 @@
 
 <div>
     <div uib-alert ng-repeat="alert in alerts" ng-class="'alert-' + alert.type" close="closeAlert($index)">{{alert.msg}}</div>
-    <select class="form-control" ng-model="loginType">
-        <option value="">Login option</option>
-        <option value="PTC">PTC</option>
-        <option value="Google">Google</option>
-    </select>
-    <div ng-switch="loginType">
-        <form name="loginForm" ng-switch-when="PTC">
-            <div class="input-group">
-                <span class="glyphicon glyphicon-user input-group-addon" id="username"></span>
-                <input aria-describedby="username" placeholder="Username" class="form-control" type="text" ng-model="user.name"/><br/>
-            </div>
-            <div class="input-group">
-                <span class="glyphicon glyphicon-lock input-group-addon" id="ptc-password"></span>
-                <input aria-describedby="ptc-password" placeholder="Password" class="form-control" type="password" ng-model="user.password"/>
-            </div>
-            <button class="form-control" ng-disabled="loading" type="button" class="btn btn-default" ng-click="update(user)">Login</button>
-            <p ng-show="loading">LOADING..</p>
-        </form>
-
-        <form name="loginForm" ng-switch-when="Google">
-            <div class="input-group">
-                <span class="glyphicon glyphicon-envelope input-group-addon" id="email"></span>
-                <input aria-describedby="email" placeholder="Email" class="form-control" type="email" ng-model="user.email"/>
-            </div>
-            <div class="input-group">
-                <span class="glyphicon glyphicon-lock input-group-addon" id="google-password"></span>
-                <input aria-describedby="google-password" placeholder="Password" class="form-control" type="password" ng-model="user.password"/>
-            </div>
-            <button class="form-control" ng-disabled="loading" type="button" class="btn btn-default" ng-click="update(user)">Login</button>
-            <p ng-show="loading">LOADING..</p>
-        </form>
+    <div class="row">
+	    <select class="form-control" ng-model="loginType">
+	        <option value="">Login option</option>
+	        <option value="PTC">PTC</option>
+	        <option value="Google">Google</option>
+	    </select>
     </div>
-    <br />
+    <div class="row">
+	    <div ng-switch="loginType">
+	        <form name="loginForm" ng-switch-when="PTC">
+	            <div class="input-group">
+	                <span class="glyphicon glyphicon-user input-group-addon" id="username"></span>
+	                <input aria-describedby="username" placeholder="Username" class="form-control" type="text" ng-model="user.name"/><br/>
+	            </div>
+	            <div class="input-group">
+	                <span class="glyphicon glyphicon-lock input-group-addon" id="ptc-password"></span>
+	                <input aria-describedby="ptc-password" placeholder="Password" class="form-control" type="password" ng-model="user.password"/>
+	            </div>
+	            <button class="form-control" ng-disabled="loading" type="button" class="btn btn-default" ng-click="update(user)">Login</button>
+	            <p ng-show="loading">LOADING..</p>
+	        </form>
+	
+	        <form name="loginForm" ng-switch-when="Google">
+	            <div class="input-group">
+	                <span class="glyphicon glyphicon-envelope input-group-addon" id="email"></span>
+	                <input aria-describedby="email" placeholder="Email" class="form-control" type="email" ng-model="user.email"/>
+	            </div>
+	            <div class="input-group">
+	                <span class="glyphicon glyphicon-lock input-group-addon" id="google-password"></span>
+	                <input aria-describedby="google-password" placeholder="Password" class="form-control" type="password" ng-model="user.password"/>
+	            </div>
+	            <button class="form-control" ng-disabled="loading" type="button" class="btn btn-default" ng-click="update(user)">Login</button>
+	            <p ng-show="loading">LOADING..</p>
+	        </form>
+	    </div>
+    </div> 
 </div>
