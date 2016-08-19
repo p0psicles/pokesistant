@@ -2,26 +2,26 @@
     <div ng-transclude></div>
 </script>
 
-<div class="form-control">
-    <p>Login option:</p>
-    <select ng-model="loginType">
-        <option value="">Choose one</option>
+<div>
+    <div uib-alert ng-repeat="alert in alerts" ng-class="'alert-' + alert.type" close="closeAlert($index)">{{alert.msg}}</div>
+    <select class="form-control" ng-model="loginType">
+        <option value="">Login option</option>
         <option value="PTC">PTC</option>
         <option value="Google">Google</option>
     </select>
-
-    <div uib-alert ng-repeat="alert in alerts" ng-class="'alert-' + alert.type" close="closeAlert($index)">{{alert.msg}}</div>
     <div ng-switch="loginType">
         <form name="loginForm" ng-switch-when="PTC">
-            Name: <input type="text" ng-model="user.name"/><br/>
-            Password: <input type="password" ng-model="user.password"/>
-            <button ng-disabled="loading" type="button" class="btn btn-default" ng-click="update(user)">LoginEe</button>
+            <label for="username">User:</label>
+            <input id="username" class="form-control" type="text" ng-model="user.name"/><br/>
+            <label for="psw">Password:</label>
+            <input id="psw" class="form-control" type="password" ng-model="user.password"/>
+            <button class="form-control" ng-disabled="loading" type="button" class="btn btn-default" ng-click="update(user)">Login</button>
             <p ng-show="loading">LOADING..</p>
         </form>
 
         <form name="loginForm" ng-switch-when="Google">
-            E-mail: <input type="email" ng-model="user.email"/><br/>
-            Password: <input type="password" ng-model="user.password"/>
+            E-mail: <input class="form-control" type="email" ng-model="user.email"/><br/>
+            Password: <input class="form-control" type="password" ng-model="user.password"/>
             <input ng-disabled="loading" type="submit" ng-click="update(user)" value="Login"/>
             <p ng-show="loading">LOADING..</p>
         </form>
