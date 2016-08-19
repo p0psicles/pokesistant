@@ -15,7 +15,7 @@ define([
             $scope.loading = false;
 
             $scope.getPokemonList = function () {
-                $http.get('/getPokemon').then(function (response) {
+                $http.get('/pokemon').then(function (response) {
                     PokemonService.setPokemons(response.data.pokemons);
                     console.log(PokemonService.getPokemons());
                     $location.path('/pokemonList');
@@ -29,11 +29,11 @@ define([
                     if (user.name && user.password) {
                         // PTC
                         data = {'username': user.name, 'password': user.password, 'auth': 'ptc'};
-                        var requestPogoSession = '/getPogoSession';
+                        var requestPogoSession = '/login';
                     } else if (user.email && user.password) {
                         // Google
                         data = {'username': user.email, 'password': user.password};
-                        var requestPogoSession = '/getPogoSession';
+                        var requestPogoSession = '/login';
                     } else {
                         $scope.error = true;
                         $scope.errorMessage = 'No username/email and/or password was defined';
