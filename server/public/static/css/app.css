@@ -70,7 +70,8 @@ div.main {
     height: 250px;
     outline: 1px solid;
     float: left;
-    margin-bottom: 2px;
+    margin-bottom: 1px;
+    margin-right: 1px;
     padding-left: 15px;
     padding-bottom: 5px;
     padding-right: 15px;
