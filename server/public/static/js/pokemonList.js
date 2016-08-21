@@ -12,12 +12,20 @@ define([
 
     return angular.module('myApp.pokemonList', ['ngRoute'])
 
-        .controller('PokemonListCtrl', ['$scope', '$http', 'PokemonService', 'dialogs', function ($scope, $http, PokemonService, dialogs) {
+        .controller('PokemonListCtrl', ['$scope', '$http', 'PokemonService', '$location', 'dialogs',
+                                        function ($scope, $http, PokemonService, $location, dialogs) {
             $scope.pokemonList = PokemonService.getPokemons();
             $scope.updateList = function () {
-                $http.get('/pokemon').then(function (response) {
+                $http.get('/pokemon').
+                then(
+                function (response) {
                     PokemonService.setPokemons(response.data.pokemons);
                     $scope.pokemonList = PokemonService.getPokemons();
+                },
+                function (response) {
+                    if (response.status === 401) {
+                        $location.path('/login');
+                    }
                 });
             };
             $scope.openMoveDetails = function (moveId) {
