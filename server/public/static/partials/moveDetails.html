@@ -1,10 +1,24 @@
-<div class="move-details">
-<ul>
-<li>Name: {{moveDetails.Name}}</li>
-<li>Quick/Special: {{moveDetails['Move Type']}}</li>
-<li>Type: {{moveDetails.Type}}</li>
-<li>Damage: {{moveDetails.Power}}</li>
-<li>Duration (ms): {{moveDetails['Duration (ms)']}}</li>
-<li>Energy delta: {{moveDetails['Energy Delta']}}</li>
-</ul>
+<div class="modal-header">
+  <h4 class="modal-title">Move: {{moveDetails['Name']}}</h4>
+</div>
+
+<div class="modal-body">
+  <div class="form-group input-group-lg">
+<span>
+    <div class="move-details">
+    <ul>
+    <li>Quick/Special: {{moveDetails['Move Type']}}</li>
+    <li>Type: {{moveDetails.Type}}</li>
+    <li>Damage: {{moveDetails.Power}}</li>
+    <li>Duration (ms): {{moveDetails['Duration (ms)']}}</li>
+    <li>Energy delta: {{moveDetails['Energy Delta']}}</li>
+    </ul>
+    </div>
+</span>
+
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-primary" ng-click="done()">Close</button>
 </div>
