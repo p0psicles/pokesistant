@@ -4,6 +4,7 @@ define([
     'angular-route',
     'angular-animate',
     'dialog-service',
+    'angular-touch',
     './services',
     './login',
     './pokemonList',
@@ -21,6 +22,7 @@ define([
         'myApp.login',
         'myApp.pokemonList',
         'myApp.version',
-        'dialogs.main'
+        'dialogs.main',
+        'ngTouch'
     ]);
 });

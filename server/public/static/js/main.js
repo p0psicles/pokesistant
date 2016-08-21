@@ -8,7 +8,8 @@ require.config({
         'angular-animate': 'angular-animate/angular-animate',
         'uiBootstrap': 'angular-bootstrap/ui-bootstrap-tpls.min',
         'angular-sanitize': 'angular-sanitize/angular-sanitize',
-        'dialog-service': 'angular-dialog-service/dist/dialogs'
+        'dialog-service': 'angular-dialog-service/dist/dialogs',
+        'angular-touch': 'angular-touch/angular-touch'  
     },
 
     // angular does not support AMD out of the box, put it in a shim
@@ -21,6 +22,10 @@ require.config({
         },
         'angular-animate': {
             deps: ['angular']
+        },
+        'angular-touch': {
+            deps: ['angular'],
+            exports: 'angular-touch'
         },
         'uiBootstrap': {
             deps: ['angular'],
