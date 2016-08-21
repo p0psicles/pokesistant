@@ -10,7 +10,7 @@ define([
     './version/interpolate-filter'
 ], function (angular) {
     'use strict';
-    return angular.module('myApp.login', ['ngRoute', 'ngAnimate', 'ui.bootstrap'])
+    return angular.module('myApp.login', ['ngRoute', 'ui.bootstrap'])
         .controller('LoginCtrl', ['$scope', '$http', 'PokemonService', '$location', function ($scope, $http, PokemonService, $location) {
             $scope.master = {};
             $scope.loading = false;

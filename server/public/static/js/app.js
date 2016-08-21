@@ -3,6 +3,7 @@ define([
     'uiBootstrap',
     'angular-route',
     'angular-animate',
+    'dialog-service',
     './services',
     './login',
     './pokemonList',
@@ -19,6 +20,7 @@ define([
         'myApp.services',
         'myApp.login',
         'myApp.pokemonList',
-        'myApp.version'
+        'myApp.version',
+        'dialogs.main'
     ]);
 });

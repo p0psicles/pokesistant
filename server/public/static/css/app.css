@@ -9,6 +9,7 @@ div.main {
 .navbar-brand img {
 	position: relative;
 	top: -7px;
+	width: 40px;
 }
 
 .top5 { margin-top:5px; }
@@ -52,7 +53,7 @@ div.main {
 	font-size: 1.5em;
 	font-family: fantasy;
 	letter-spacing: 2px;
-} 
+}
 
 div.bottom-tile {
 	display: inline-block;
@@ -80,7 +81,7 @@ div.bottom-tile {
     position: relative;
 }
 .left-inner-addon input {
-    padding-left: 30px;    
+    padding-left: 30px;
 }
 .left-inner-addon i {
     position: absolute;
@@ -92,7 +93,7 @@ div.bottom-tile {
     position: relative;
 }
 .right-inner-addon input {
-    padding-right: 30px;    
+    padding-right: 30px;
 }
 .right-inner-addon i {
     position: absolute;
@@ -101,7 +102,16 @@ div.bottom-tile {
     pointer-events: none;
 }
 
+/* IV bars */
 .progress-label {
     float: left;
     margin-right: 1em;
+}
+
+.iv-bar {
+    height: 25px;
+}
+
+.iv-bar label {
+    width: 50px;
 }

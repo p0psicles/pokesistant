@@ -3,11 +3,13 @@
         <select class="form-control" ng-model="sortBy">
             <option value="">IV score</option>
             <option value="-cp">CP</option>
-            <option value="pokemon_name">Name</option>
+            <option value="pokemon_name">name</option>
             <option value="-individual_defense">defence</option>
             <option value="-individual_attack">attack</option>
             <option value="-individual_stamina">stamina</option>
-            <option value="-creation_time_ms">time catched</option>
+            <option value="-creation_time_ms">date catched</option>
+            <option value="-move_1_dps">Move 1 DPS</option>
+            <option value="-move_2_dps">Move 2 DPS</option>
         </select>
     </div>
 </div><!-- End row -->
@@ -36,23 +38,23 @@
                 <div class="bottom-tile">
                     Pokemon: {{pokemon.pokemon_name}}<br/>
                     Date Catched: {{pokemon.creation_time_ms | date:'dd-MM-yyyy h:m:s'}} <br/>
-                    Move 1: {{pokemon.move_1_desc}} <br/>
-                    Move 2: {{pokemon.move_2_desc}} <br/>
+                    <a ng-click="openMoveDetails(pokemon.move_1)">Move 1: {{pokemon.move_1_desc}} ({{pokemon.move_1_dps}}) </a><br/>
+                    <a ng-click="openMoveDetails(pokemon.move_2)">Move 2: {{pokemon.move_2_desc}} ({{pokemon.move_2_dps}})</a><br/>
                 </div>
-                <div>
+                <div class="iv-bar">
                     <label class="progress-label">Attack</label>
                     <uib-progressbar title="attack" max="15" value="pokemon.individual_attack"
                                      type='danger'><span
                             style="color:white; white-space:nowrap;">{{pokemon.individual_attack}} / 15</span>
                     </uib-progressbar>
                 </div>
-                <div>
+                <div class="iv-bar">
                     <label class="progress-label">Defense</label>
                     <uib-progressbar title="defense" max="15" value="pokemon.individual_defense" type="success"><span
                             style="color:white; white-space:nowrap;">{{pokemon.individual_defense}} / 15</span>
                     </uib-progressbar>
                 </div>
-                <div>
+                <div class="iv-bar">
                     <label class="progress-label">Stamina</label>
                     <uib-progressbar title="stamina" max="15" value="pokemon.individual_stamina" type="info"><span
                             style="color:white; white-space:nowrap;">{{pokemon.individual_stamina}} / 15</span>

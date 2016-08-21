@@ -9,7 +9,7 @@ from requests.exceptions import ConnectionError, HTTPError
 
 from pokemongo.api import PokeAuthSession
 from pokemongo.location import Location
-from pokemongo.pokedex import pokedex, move_list
+from pokemongo.pokedex import pokedex, move_list, move_details
 from pokemongo.custom_exceptions import GeneralPogoException
 
 import tornado
@@ -53,6 +53,7 @@ class BaseHandler(RequestHandler):
 #             return redirect(url_for('openApp'))
 
         party = pogo_session.getInventory().party
+
         pokemons = []
         attributes = ['id', 'cp', 'stamina', 'stamina_max', 'move_1', 'move_2', 'individual_attack',
                       'individual_defense', 'individual_stamina', 'nickname', 'pokemon_id', 'num_upgrades',
@@ -67,8 +68,15 @@ class BaseHandler(RequestHandler):
                                              getattr(pokemon, 'individual_defense') +
                                              getattr(pokemon, 'individual_stamina')) * (100/45.0), 0)
             pokemon_attributes['image_nr'] = str(pokemon_attributes['pokemon_id']).zfill(3)
-            pokemon_attributes['move_1_desc'] = move_list[pokemon_attributes['move_1']]
-            pokemon_attributes['move_2_desc'] = move_list[pokemon_attributes['move_2']]
+            move_details_1 = [m for m in move_details if m['ID'] == pokemon_attributes['move_1']][0]
+            move_details_2 = [m for m in move_details if m['ID'] == pokemon_attributes['move_2']][0]
+            pokemon_attributes['move_1_desc'] = move_details_1.get('Name')
+            pokemon_attributes['move_2_desc'] = move_details_2.get('Name')
+            pokemon_attributes['move_1_power'] = move_details_1.get('Power')
+            pokemon_attributes['move_2_power'] = move_details_2.get('Power')
+            pokemon_attributes['move_1_dps'] = round(move_details_1.get('Power') / (move_details_1.get('Duration (ms)') / 1000.0), 2)
+            pokemon_attributes['move_2_dps'] = round(move_details_2.get('Power') / (move_details_2.get('Duration (ms)') / 1000.0), 2)
+
 
             pokemons.append(pokemon_attributes)
 
@@ -196,28 +204,13 @@ class PokemonHandler(JsonHandler):
 
         if not pogo_session:
             self.response = {'error': 'Need to login first'}
-
-        party = pogo_session.getInventory().party
-        pokemons = []
-        attributes = ['id', 'cp', 'stamina', 'stamina_max', 'move_1', 'move_2', 'individual_attack',
-                      'individual_defense', 'individual_stamina', 'nickname', 'pokemon_id', 'num_upgrades',
-                      'is_egg', 'battles_attacked', 'battles_defended', 'additional_cp_multiplier',
-                      'creation_time_ms', 'cp_multiplier', 'weight_kg']
-        for pokemon in party:
-            pokemon_attributes = {}
-            for attr in attributes:
-                pokemon_attributes[attr] = getattr(pokemon, attr)
-            pokemon_attributes['pokemon_name'] = pokedex[pokemon_attributes['pokemon_id']]
-            pokemon_attributes['IV'] = round((getattr(pokemon, 'individual_attack') +
-                                             getattr(pokemon, 'individual_defense') +
-                                             getattr(pokemon, 'individual_stamina')) * (100/45.0), 0)
-            pokemon_attributes['image_nr'] = str(pokemon_attributes['pokemon_id']).zfill(3)
-            pokemon_attributes['move_1_desc'] = move_list[pokemon_attributes['move_1']]
-            pokemon_attributes['move_2_desc'] = move_list[pokemon_attributes['move_2']]
-
-            pokemons.append(pokemon_attributes)
+        try:
+            pokemons = self.get_pokemon()
+        except GeneralPogoException as e:
+            self.response = {'response': 500, 'message': str(e)}
+            self.write_json()
 
         if pokemons:
             #logging.info(str(pokemons))
-            self.response = {'pokemons': sorted(pokemons, key=lambda k: k['IV'], reverse=True)}
+            self.response = pokemons
             self.write_json()

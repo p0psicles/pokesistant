@@ -1900,7 +1900,8 @@
     "Duration (ms)": 1230,
     "Damage Window Start (ms)": 1030,
     "Damage Window End (ms)": 1230,
-    "Energy Delta": 7
+    "Energy Delta": 7,
+    "Power": 0
 }, {
     "ID": 232,
     "Name": "Water Gun Fast Blastoise",

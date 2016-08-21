@@ -6,7 +6,9 @@ require.config({
         'angular': 'angular/angular',
         'angular-route': 'angular-route/angular-route',
         'angular-animate': 'angular-animate/angular-animate',
-        'uiBootstrap': 'angular-bootstrap/ui-bootstrap-tpls.min'
+        'uiBootstrap': 'angular-bootstrap/ui-bootstrap-tpls.min',
+        'angular-sanitize': 'angular-sanitize/angular-sanitize',
+        'dialog-service': 'angular-dialog-service/dist/dialogs'
     },
 
     // angular does not support AMD out of the box, put it in a shim
@@ -23,6 +25,14 @@ require.config({
         'uiBootstrap': {
             deps: ['angular'],
             exports: 'uiBootstrap'
+        },
+        'angular-sanitize': {
+            deps: ['angular'],
+            exports: 'angular-sanitize'
+        },
+        'dialog-service': {
+            deps: ['angular', 'uiBootstrap', 'angular-sanitize'],
+            exports: 'dialog-service'
         }
     },
 
