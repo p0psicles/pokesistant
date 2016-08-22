@@ -24,5 +24,9 @@ define([
         'myApp.version',
         'dialogs.main',
         'ngTouch'
-    ]);
+    ]).controller('HeaderCtrl', ['$scope', '$location', function ($scope, $location) {
+        $scope.isActive = function (viewLocation) {
+            return viewLocation === $location.path();
+        }
+    }]);
 });
