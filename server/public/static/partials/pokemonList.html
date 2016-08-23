@@ -38,8 +38,12 @@
                 <div class="bottom-tile">
                     Pokemon: {{pokemon.pokemon_name}}<br/>
                     Date Catched: {{pokemon.creation_time_ms | date:'dd-MM-yyyy h:m:s'}} <br/>
-                    <a ng-click="openMoveDetails(pokemon.move_1)">Move 1: {{pokemon.move_1_desc}} ({{pokemon.move_1_dps}}) </a><br/>
-                    <a ng-click="openMoveDetails(pokemon.move_2)">Move 2: {{pokemon.move_2_desc}} ({{pokemon.move_2_dps}})</a><br/>
+                    <a ng-class="{'red-bold':pokemon.same_type_bonus}" 
+                       ng-click="openMoveDetails(pokemon.move_1)">
+                       Move 1: {{pokemon.move_1_desc}} ({{pokemon.move_1_dps}}) </a><br/>
+                    <a ng-class="{'red-bold':pokemon.same_type_bonus}" 
+                        ng-click="openMoveDetails(pokemon.move_2)">
+                        Move 2: {{pokemon.move_2_desc}} ({{pokemon.move_2_dps}})</a><br/>
                 </div>
                 <div class="iv-bar">
                     <label class="progress-label">Attack</label>

@@ -102,6 +102,13 @@ div.bottom-tile {
     pointer-events: none;
 }
 
+
+.red-bold {
+    color: red;
+    text-decoration: solid;
+    font-weight: bold;
+}
+
 /* IV bars */
 .progress-label {
     float: left;
