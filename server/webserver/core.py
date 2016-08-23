@@ -74,8 +74,6 @@ class BaseHandler(RequestHandler):
             pokemon_attributes['move_2_desc'] = move_details_2.get('Name')
             pokemon_attributes['move_1_power'] = move_details_1.get('Power')
             pokemon_attributes['move_2_power'] = move_details_2.get('Power')
-            pokemon_attributes['move_1_dps'] = round(move_details_1.get('Power') / (move_details_1.get('Duration (ms)') / 1000.0), 2)
-            pokemon_attributes['move_2_dps'] = round(move_details_2.get('Power') / (move_details_2.get('Duration (ms)') / 1000.0), 2)
 
             # If type of attack1 is the same as attack2, it will do 25% additional damage.
             pokemon_attributes['same_type_bonus'] = False
@@ -83,6 +81,10 @@ class BaseHandler(RequestHandler):
                 pokemon_attributes['move_1_power'] = int(pokemon_attributes['move_1_power'] * 1.25)
                 pokemon_attributes['move_2_power'] = int(pokemon_attributes['move_2_power'] * 1.25)
                 pokemon_attributes['same_type_bonus'] = True
+
+            pokemon_attributes['move_1_dps'] = round(pokemon_attributes['move_1_power'] / (move_details_1.get('Duration (ms)') / 1000.0), 2)
+            pokemon_attributes['move_2_dps'] = round(pokemon_attributes['move_2_power'] / (move_details_2.get('Duration (ms)') / 1000.0), 2)
+
 
             pokemons.append(pokemon_attributes)
 
