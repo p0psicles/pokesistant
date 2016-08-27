@@ -10,6 +10,7 @@
             <option value="-creation_time_ms">date catched</option>
             <option value="-move_1_dps">Move 1 DPS</option>
             <option value="-move_2_dps">Move 2 DPS</option>
+            <option value="-stamina">HP</option>
         </select>
     </div>
 </div><!-- End row -->
@@ -29,19 +30,23 @@
 <div class="row">
     <div class="col-lg-12" id="pokemonList">
         <div class="pokemonTile" ng-repeat="pokemon in pokemonList | orderBy: sortBy | filter: q">
-            <div>
-                <img ng-src="http://assets.pokemon.com/assets/cms2/img/pokedex/detail/{{pokemon.image_nr}}.png"/>
-                <div class="pull-left top20">
+            <div class="row">
+                <div class="col-lg-6 top10" >
+                    <img ng-src="http://assets.pokemon.com/assets/cms2/img/pokedex/detail/{{pokemon.image_nr}}.png"/>
+                </div>
+                <div class="col-lg-6 pull-left top10">
                     <div class="score-iv">IV: {{pokemon.IV}}</div>
                     <div class="score-cp">CP: {{pokemon.cp}}</div>
+                    <div class="score-cp">HP: {{pokemon.stamina}}/{{pokemon.stamina_max}}</div>
+                </div>
                 </div>
                 <div class="bottom-tile">
-                    Pokemon: {{pokemon.pokemon_name}}<br/>
+                    Pokemon: {{pokemon.pokemon_name}} ({{pokemon.types.join()}})<br/>
                     Date Catched: {{pokemon.creation_time_ms | date:'dd-MM-yyyy h:m:s'}} <br/>
-                    <a ng-class="{'red-bold':pokemon.same_type_bonus}" 
+                    <a ng-class="{'red-bold':pokemon.same_type_bonus_attack_1}" 
                        ng-click="openMoveDetails(pokemon.move_1)">
                        Move 1: {{pokemon.move_1_desc}} ({{pokemon.move_1_dps}}) </a><br/>
-                    <a ng-class="{'red-bold':pokemon.same_type_bonus}" 
+                    <a ng-class="{'red-bold':pokemon.same_type_bonus_attack_2}" 
                         ng-click="openMoveDetails(pokemon.move_2)">
                         Move 2: {{pokemon.move_2_desc}} ({{pokemon.move_2_dps}})</a><br/>
                 </div>

@@ -9,7 +9,7 @@ from requests.exceptions import ConnectionError, HTTPError
 
 from pokemongo.api import PokeAuthSession
 from pokemongo.location import Location
-from pokemongo.pokedex import pokedex, move_list, move_details
+from pokemongo.pokedex import pokedex, move_list, move_details, get_pokemon_attr
 from pokemongo.custom_exceptions import GeneralPogoException
 
 import tornado
@@ -63,6 +63,7 @@ class BaseHandler(RequestHandler):
             pokemon_attributes = {}
             for attr in attributes:
                 pokemon_attributes[attr] = getattr(pokemon, attr)
+            pokemon_attributes['types'] = get_pokemon_attr(pokemon_attributes['pokemon_id'])['Types']
             pokemon_attributes['pokemon_name'] = pokedex[pokemon_attributes['pokemon_id']]
             pokemon_attributes['IV'] = round((getattr(pokemon, 'individual_attack') +
                                              getattr(pokemon, 'individual_defense') +
@@ -76,15 +77,18 @@ class BaseHandler(RequestHandler):
             pokemon_attributes['move_2_power'] = move_details_2.get('Power')
 
             # If type of attack1 is the same as attack2, it will do 25% additional damage.
-            pokemon_attributes['same_type_bonus'] = False
-            if move_details_1.get('Type') == move_details_2.get('Type'):
+            pokemon_attributes['same_type_bonus_attack_1'] = False
+            pokemon_attributes['same_type_bonus_attack_2'] = False
+            if move_details_1.get('Type') in pokemon_attributes.get('types'):
                 pokemon_attributes['move_1_power'] = int(pokemon_attributes['move_1_power'] * 1.25)
+                pokemon_attributes['same_type_bonus_attack_1'] = True
+
+            if move_details_1.get('Type') in pokemon_attributes.get('types'):
                 pokemon_attributes['move_2_power'] = int(pokemon_attributes['move_2_power'] * 1.25)
-                pokemon_attributes['same_type_bonus'] = True
+                pokemon_attributes['same_type_bonus_attack_2'] = True
 
             pokemon_attributes['move_1_dps'] = round(pokemon_attributes['move_1_power'] / (move_details_1.get('Duration (ms)') / 1000.0), 2)
             pokemon_attributes['move_2_dps'] = round(pokemon_attributes['move_2_power'] / (move_details_2.get('Duration (ms)') / 1000.0), 2)
-
 
             pokemons.append(pokemon_attributes)
 
