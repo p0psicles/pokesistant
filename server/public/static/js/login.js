@@ -52,6 +52,8 @@ define([
                         $scope.loading = false;
                         if (response.data.authenticated) {
                             $scope.getPokemonList();
+                        } else {
+                            $scope.alerts.push({type: 'danger', msg: response.data.error_msg});
                         }
                     }, function errorCallback(error) {
                         $scope.loading = false;

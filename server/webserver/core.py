@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 import json
 import logging
+import traceback
 import time
 from requests.exceptions import ConnectionError, HTTPError
 
@@ -11,6 +12,7 @@ from pokemongo.api import PokeAuthSession
 from pokemongo.location import Location
 from pokemongo.pokedex import pokedex, move_list, move_details, get_pokemon_attr
 from pokemongo.custom_exceptions import GeneralPogoException
+
 
 import tornado
 from tornado.web import RequestHandler
@@ -199,6 +201,7 @@ class LoginHandler(JsonHandler):
             error_msg = e
             pogo_session = None
             access_token = ''
+            logging.error('Exception caught: %s, Traceback: %s', e, traceback.format_exc())
 
         if pogo_session:
             self.store[username]['access_token'] = {'last_update': time.time(), 'token': pogo_session.accessToken}
