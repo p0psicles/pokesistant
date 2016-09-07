@@ -215,13 +215,14 @@ class LoginHandler(JsonHandler):
 class PokemonHandler(JsonHandler):
     def get(self):
 
-        pogo_session = self.check_refresh_session()
-
-        if not pogo_session:
-            self.response = {'error': 'Need to login first'}
         try:
+            pogo_session = self.check_refresh_session()
+
+            if not pogo_session:
+                self.response = {'error': 'Need to login first'}
+
             pokemons = self.get_pokemon()
-        except GeneralPogoException as e:
+        except Exception as e:
             self.response = {'response': 500, 'message': str(e)}
             self.write_json()
 
