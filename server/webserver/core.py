@@ -49,7 +49,7 @@ class BaseHandler(RequestHandler):
         return self.set_secure_cookie('access_token', some_value)
 
     def get_pokemon(self):
-        pogo_session = self.check_refresh_session()
+        pogo_session = self.self.get_pogo_auth()
 
 #         if not pogo_session:
 #             return redirect(url_for('openApp'))
@@ -216,7 +216,7 @@ class PokemonHandler(JsonHandler):
     def get(self):
 
         try:
-            pogo_session = self.check_refresh_session()
+            pogo_session = self.get_pogo_auth()
 
             if not pogo_session:
                 self.response = {'error': 'Need to login first'}
