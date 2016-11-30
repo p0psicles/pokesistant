@@ -8,10 +8,10 @@ import traceback
 import time
 from requests.exceptions import ConnectionError, HTTPError
 
-from pokemongo.api import PokeAuthSession
-from pokemongo.location import Location
-from pokemongo.pokedex import pokedex, move_list, move_details, get_pokemon_attr
-from pokemongo.custom_exceptions import GeneralPogoException
+from pogo.api import PokeAuthSession
+from pogo.location import Location
+from pogo.pokedex import pokedex, move_list, move_details, get_pokemon_attr
+from pogo.custom_exceptions import GeneralPogoException
 
 
 import tornado
