@@ -62,37 +62,40 @@ class BaseHandler(RequestHandler):
                       'is_egg', 'battles_attacked', 'battles_defended', 'additional_cp_multiplier',
                       'creation_time_ms', 'cp_multiplier', 'weight_kg']
         for pokemon in party:
-            pokemon_attributes = {}
-            for attr in attributes:
-                pokemon_attributes[attr] = getattr(pokemon, attr)
-            pokemon_attributes['types'] = get_pokemon_attr(pokemon_attributes['pokemon_id'])['Types']
-            pokemon_attributes['pokemon_name'] = pokedex[pokemon_attributes['pokemon_id']]
-            pokemon_attributes['IV'] = round((getattr(pokemon, 'individual_attack') +
-                                             getattr(pokemon, 'individual_defense') +
-                                             getattr(pokemon, 'individual_stamina')) * (100/45.0), 0)
-            pokemon_attributes['image_nr'] = str(pokemon_attributes['pokemon_id']).zfill(3)
-            move_details_1 = [m for m in move_details if m['ID'] == pokemon_attributes['move_1']][0]
-            move_details_2 = [m for m in move_details if m['ID'] == pokemon_attributes['move_2']][0]
-            pokemon_attributes['move_1_desc'] = move_details_1.get('Name')
-            pokemon_attributes['move_2_desc'] = move_details_2.get('Name')
-            pokemon_attributes['move_1_power'] = move_details_1.get('Power')
-            pokemon_attributes['move_2_power'] = move_details_2.get('Power')
+            try:
+                pokemon_attributes = {}
+                for attr in attributes:
+                    pokemon_attributes[attr] = getattr(pokemon, attr)
+                pokemon_attributes['types'] = get_pokemon_attr(pokemon_attributes['pokemon_id'])['Types']
+                pokemon_attributes['pokemon_name'] = pokedex[pokemon_attributes['pokemon_id']]
+                pokemon_attributes['IV'] = round((getattr(pokemon, 'individual_attack') +
+                                                 getattr(pokemon, 'individual_defense') +
+                                                 getattr(pokemon, 'individual_stamina')) * (100/45.0), 0)
+                pokemon_attributes['image_nr'] = str(pokemon_attributes['pokemon_id']).zfill(3)
+                move_details_1 = [m for m in move_details if m['ID'] == pokemon_attributes['move_1']][0]
+                move_details_2 = [m for m in move_details if m['ID'] == pokemon_attributes['move_2']][0]
+                pokemon_attributes['move_1_desc'] = move_details_1.get('Name')
+                pokemon_attributes['move_2_desc'] = move_details_2.get('Name')
+                pokemon_attributes['move_1_power'] = move_details_1.get('Power')
+                pokemon_attributes['move_2_power'] = move_details_2.get('Power')
 
-            # If type of attack1 is the same as attack2, it will do 25% additional damage.
-            pokemon_attributes['same_type_bonus_attack_1'] = False
-            pokemon_attributes['same_type_bonus_attack_2'] = False
-            if move_details_1.get('Type') in pokemon_attributes.get('types'):
-                pokemon_attributes['move_1_power'] = int(pokemon_attributes['move_1_power'] * 1.25)
-                pokemon_attributes['same_type_bonus_attack_1'] = True
+                # If type of attack1 is the same as attack2, it will do 25% additional damage.
+                pokemon_attributes['same_type_bonus_attack_1'] = False
+                pokemon_attributes['same_type_bonus_attack_2'] = False
+                if move_details_1.get('Type') in pokemon_attributes.get('types'):
+                    pokemon_attributes['move_1_power'] = int(pokemon_attributes['move_1_power'] * 1.25)
+                    pokemon_attributes['same_type_bonus_attack_1'] = True
 
-            if move_details_1.get('Type') in pokemon_attributes.get('types'):
-                pokemon_attributes['move_2_power'] = int(pokemon_attributes['move_2_power'] * 1.25)
-                pokemon_attributes['same_type_bonus_attack_2'] = True
+                if move_details_1.get('Type') in pokemon_attributes.get('types'):
+                    pokemon_attributes['move_2_power'] = int(pokemon_attributes['move_2_power'] * 1.25)
+                    pokemon_attributes['same_type_bonus_attack_2'] = True
 
-            pokemon_attributes['move_1_dps'] = round(pokemon_attributes['move_1_power'] / (move_details_1.get('Duration (ms)') / 1000.0), 2)
-            pokemon_attributes['move_2_dps'] = round(pokemon_attributes['move_2_power'] / (move_details_2.get('Duration (ms)') / 1000.0), 2)
+                pokemon_attributes['move_1_dps'] = round(pokemon_attributes['move_1_power'] / (move_details_1.get('Duration (ms)') / 1000.0), 2)
+                pokemon_attributes['move_2_dps'] = round(pokemon_attributes['move_2_power'] / (move_details_2.get('Duration (ms)') / 1000.0), 2)
 
-            pokemons.append(pokemon_attributes)
+                pokemons.append(pokemon_attributes)
+            except Exception as e:
+                continue
 
         if pokemons:
             #logging.info(str(pokemons))
